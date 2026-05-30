@@ -1,5 +1,8 @@
 const URL = "./model/";
 
+let model
+let webcam
+
 async function init() {
 
     model = await tmImage.load(
@@ -13,8 +16,12 @@ async function init() {
     await webcam.setup();
     await webcam.play();
 
-    document.getElementById("webcam")
-        .srcObject = webcam.webcam;
+    document.body.appendChild(webcam.canvas);
+
+    /*document.getElementById("webcam")
+        console.log(webcam)
+        console.log(webcam.webcam)
+        .srcObject = webcam.webcam;*/
 
     window.requestAnimationFrame(loop);
 }
@@ -23,9 +30,19 @@ async function loop() {
 
     webcam.update();
 
-    await predict();
+    setInterval(async()=>{
+        await predict();
+    },1000);
 
-    window.requestAnimationFrame(loop);
+    //window.requestAnimationFrame(loop);
 }
 
 init();
+
+async function predict() {
+
+    const prediction = await model.predict(webcam.canvas);
+
+    console.log(prediction);
+
+}

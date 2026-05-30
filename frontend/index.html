@@ -5,10 +5,18 @@
 </head>
 <body>
 
-    <video id="webcam" autoplay playsinline width="400"></video>
+    <!-- <video id="webcam" autoplay playsinline width="400"></video> -->
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+
+    <script>
+        console.log("Tensorflow:", tf);
+    </script>
+
+    <script>
+        console.log("TM:", tmImage);
+    </script>
 
     <script src="app.js"></script>
 
