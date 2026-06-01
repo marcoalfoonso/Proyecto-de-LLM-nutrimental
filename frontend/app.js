@@ -47,6 +47,23 @@ async function predict() {
 
     const prediction = await model.predict(webcam.canvas);
 
-    console.log(prediction);
+    //transformar datos
+    const data = prediction.map(item => ({
+        className: item.className,
+        probability: item.probability
+    }));
+
+    console.log(data);
+
+    //enviar a backend
+    await fetch("http://localhost:8000/vision/detect",{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            predictions: data
+        })
+    });
 
 }
