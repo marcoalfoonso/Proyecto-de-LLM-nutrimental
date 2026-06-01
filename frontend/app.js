@@ -18,6 +18,10 @@ async function init() {
 
     document.body.appendChild(webcam.canvas);
 
+    setInterval(() => {
+        webcam.update();
+    }, 30);
+
     /*document.getElementById("webcam")
         console.log(webcam)
         console.log(webcam.webcam)
