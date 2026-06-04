@@ -1,0 +1,49 @@
+backend/
+│
+├── app/
+│   │
+│   ├── main.py
+│   │
+│   ├── api/
+│   │   ├── routes_chat.py
+│   │   ├── routes_vision.py
+│   │   ├── routes_inventory.py -
+│   │   └── routes_users.py
+│   │
+│   ├── services/
+│   │   ├── llm_service.py
+│   │   ├── vision_service.py -
+│   │   ├── nutrition_service.py
+│   │   ├── recipe_service.py
+│   │   └── whatsapp_service.py
+│   │
+│   ├── models/
+│   │   ├── user_model.py
+│   │   ├── inventory_model.py
+│   │   └── meal_model.py
+│   │
+│   ├── database/
+│   │   ├── connection.py
+│   │   └── mongodb.py
+|   |   |__inventory.db
+│   │
+│   ├── mqtt/
+│   │   ├── mqtt_client.py
+│   │   └── mqtt_subscriber.py
+│   │
+│   ├── prompts/
+│   │   ├── recipe_prompt.txt
+│   │   ├── nutrition_prompt.txt
+│   │   └── shopping_prompt.txt
+│   │
+│   ├── utils/
+│   │   ├── logger.py
+│   │   ├── validators.py
+│   │   └── timers.py
+│   │
+│   └── config/
+│       └── settings.py
+│
+├── requirements.txt
+├── .env
+└── README.md
