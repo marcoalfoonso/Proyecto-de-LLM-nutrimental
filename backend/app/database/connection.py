@@ -1,6 +1,12 @@
 import sqlite3
+from pathlib import Path
 
-DATABASE = "database/inventory.db"
+
+BASE_DIR = Path(__file__).resolve().parent
+
+DATABASE = BASE_DIR / "inventory.db"
+
+print(f"Database path: {DATABASE}")
 
 
 def get_connection():

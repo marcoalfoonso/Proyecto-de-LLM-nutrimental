@@ -9,6 +9,9 @@ backend/
 │   │   ├── routes_vision.py
 │   │   ├── routes_inventory.py -
 │   │   └── routes_users.py
+
+|   |___whathsapp/
+|   |   |__/carpetas
 │   │
 │   ├── services/
 │   │   ├── llm_service.py
