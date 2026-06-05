@@ -21,42 +21,42 @@ class InventoryService:
             return inventory
         
 
-#función que agrega un nuevo alimento a la base de datos, recibe el nombre, cantidad y fuente del alimento como parámetros
-        
-def add_food(name, quantity, source):
+    #función que agrega un nuevo alimento a la base de datos, recibe el nombre, cantidad y fuente del alimento como parámetros
+            
+    def add_food(name, quantity, source):
 
-    conn = get_connection()
+        conn = get_connection()
 
-    cursor = conn.cursor()
+        cursor = conn.cursor()
 
-    cursor.execute(
-        """
-        INSERT INTO inventory(name, quantity, source)
-        VALUES (?, ?, ?)
-        """,
-        (name, quantity, source)
-    )
+        cursor.execute(
+            """
+            INSERT INTO inventory(name, quantity, source)
+            VALUES (?, ?, ?)
+            """,
+            (name, quantity, source)
+        )
 
-    conn.commit()
+        conn.commit()
 
-    conn.close()
+        conn.close()
 
 
-#función que carga el inventario desde la base de datos, devuelve una lista de diccionarios con los alimentos y
-# sus cantidades, fuentes y fechas de actualización
+    #función que carga el inventario desde la base de datos, devuelve una lista de diccionarios con los alimentos y
+    # sus cantidades, fuentes y fechas de actualización
 
-def load_inventory():
+    def load_inventory_from_db(self):
 
-    conn = get_connection()
+        conn = get_connection()
 
-    cursor = conn.cursor()
+        cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT * FROM inventory"
-    )
+        cursor.execute(
+            "SELECT * FROM inventory"
+        )
 
-    rows = cursor.fetchall()
+        rows = cursor.fetchall()
 
-    conn.close()
+        conn.close()
 
-    return [dict(row) for row in rows]
+        return [dict(row) for row in rows]
