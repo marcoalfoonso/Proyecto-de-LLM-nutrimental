@@ -55,6 +55,25 @@ class InventoryService:
 
         conn.close()
 
+    #funcion que elimina un alimento del inventario
+
+    def remove_food(self,name,quantity):
+
+        conn = get_connection()
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            UPDATE inventory
+            SET quantity = quantity - ?
+            WHERE name = ?
+            """,
+            (quantity, name)
+        )
+
+        conn.commit()
+        conn.close()
 
     #función que carga el inventario desde la base de datos, devuelve una lista de diccionarios con los alimentos y
     # sus cantidades, fuentes y fechas de actualización

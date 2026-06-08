@@ -39,6 +39,11 @@ async def add_inventory_item(item: InventoryItem):
     }
 
 
+#endpoint para eliminar un alimento del inventario
+#@router.post("/inventory/remove")
+
+
+
 @router.get("/inventory/db")
 async def get_inventory_from_db():
     inventory = inventory_service.load_inventory_from_db()
