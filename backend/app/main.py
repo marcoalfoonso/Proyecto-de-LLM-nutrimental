@@ -1,8 +1,8 @@
+from fastapi import FastAPI
 from api.routes_inventory import router as inventory_router
 from api.routes_chat import router as chat_router
-from fastapi import FastAPI
 
-app = FastAPI()
+app = FastAPI(title="Alacena Inteligente API")
 
 @app.get("/")
 def root():

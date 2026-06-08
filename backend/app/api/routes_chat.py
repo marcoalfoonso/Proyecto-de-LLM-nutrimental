@@ -1,47 +1,42 @@
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from services.llm_service import consultar_llm
 
 router = APIRouter()
-
-# ─── MODELOS DE DATOS ─────────────────────────────────────────────
+historial = []
 
 class MensajeEntrada(BaseModel):
-    """Mensaje que llega desde index.js (WhatsApp)"""
-    numero: str       # número del usuario ej: "5215512345678"
-    mensaje: str      # texto que escribió el usuario
+    numero: str
+    mensaje: str
 
 class RespuestaChat(BaseModel):
-    """Respuesta que se regresa a index.js"""
-    numero: str       # a quién responder
-    respuesta: str    # texto generado por el LLM
-
-# ─── RUTA PRINCIPAL ───────────────────────────────────────────────
+    numero: str
+    respuesta: str
 
 @router.post("/chat", response_model=RespuestaChat)
 async def recibir_mensaje(entrada: MensajeEntrada):
-    """
-    Recibe un mensaje de WhatsApp desde index.js,
-    lo pasa al LLM y regresa la respuesta.
-    """
-    print(f"\n📩 Mensaje recibido de {entrada.numero}: {entrada.mensaje}")
+    print(f"\n📩 Mensaje de {entrada.numero}: {entrada.mensaje}")
 
     if not entrada.mensaje.strip():
-        raise HTTPException(status_code=400, detail="El mensaje no puede estar vacío")
+        raise HTTPException(status_code=400, detail="Mensaje vacío")
 
-    # Por ahora responde con eco para probar que la ruta funciona
-    # Aquí después conectaremos llm_service.py
-    respuesta_prueba = f"[ECHO] Recibí tu mensaje: '{entrada.mensaje}'"
+    historial.append({"numero": entrada.numero, "mensaje": entrada.mensaje})
+    print(f"📋 Historial: {len(historial)} mensajes")
 
-    print(f"✅ Respuesta lista para {entrada.numero}: {respuesta_prueba}")
+    respuesta = await consultar_llm(entrada.mensaje)
+    print(f"✅ Respuesta: {respuesta}")
 
-    return RespuestaChat(
-        numero=entrada.numero,
-        respuesta=respuesta_prueba
-    )
+    return RespuestaChat(numero=entrada.numero, respuesta=respuesta)
 
-# ─── RUTA DE SALUD ────────────────────────────────────────────────
+@router.get("/chat/historial")
+async def ver_historial():
+    return {"total": len(historial), "mensajes": historial}
 
 @router.get("/chat/health")
 async def health():
-    """Verifica que el servicio de chat esté activo"""
     return {"status": "ok", "servicio": "chat"}
