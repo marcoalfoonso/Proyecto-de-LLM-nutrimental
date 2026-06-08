@@ -11,4 +11,7 @@ class InventoryItem(BaseModel):
         gt=0
     )
 
-    fuente: str = "user"
+    fuente: str = Field(
+        min_length=2,
+        max_length=25
+    )

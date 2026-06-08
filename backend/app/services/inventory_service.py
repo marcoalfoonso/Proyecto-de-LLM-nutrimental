@@ -22,8 +22,8 @@ class InventoryService:
         
 
     #función que agrega un nuevo alimento a la base de datos, recibe el nombre, cantidad y fuente del alimento como parámetros
-            
-    def add_food(name, quantity, source):
+
+    def add_food(self, name, quantity, source):
 
         conn = get_connection()
 
@@ -31,11 +31,25 @@ class InventoryService:
 
         cursor.execute(
             """
-            INSERT INTO inventory(name, quantity, source)
+            INSERT INTO inventory(
+                name,
+                quantity,
+                source
+            )
             VALUES (?, ?, ?)
+
+            ON CONFLICT(name)
+
+            DO UPDATE SET
+
+                quantity = inventory.quantity + excluded.quantity,
+                source = excluded.source,
+                last_update = CURRENT_TIMESTAMP
             """,
             (name, quantity, source)
         )
+
+        
 
         conn.commit()
 
