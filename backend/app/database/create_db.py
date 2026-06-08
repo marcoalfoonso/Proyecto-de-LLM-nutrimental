@@ -5,10 +5,12 @@ cursor = conn.cursor()
 
 
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS inventory(
+    CREATE TABLE inventory(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    quantity INTEGER NOT NULL
+    name TEXT UNIQUE,
+    quantity INTEGER NOT NULL,
+    source TEXT,
+    last_update DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 """)
 
