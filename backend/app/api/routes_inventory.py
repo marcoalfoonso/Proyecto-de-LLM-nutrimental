@@ -40,8 +40,13 @@ async def add_inventory_item(item: InventoryItem):
 
 
 #endpoint para eliminar un alimento del inventario
-#@router.post("/inventory/remove")
+@router.post("/inventory/remove")
+async def remove_inventory_item(item: InventoryItem):
+    success = inventory_service.remove_food(item.nombre, item.cantidad)
 
+    return {
+        "message": "Alimento eliminado del inventario" if success else "No hay suficiente cantidad para eliminar"
+    }
 
 
 @router.get("/inventory/db")
