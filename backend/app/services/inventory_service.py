@@ -68,12 +68,15 @@ class InventoryService:
             UPDATE inventory
             SET quantity = quantity - ?
             WHERE name = ?
+            AND quantity >= ?
             """,
-            (quantity, name)
+            (quantity, name, quantity)
         )
 
         conn.commit()
+        update_rows = cursor.rowcount
         conn.close()
+        return update_rows > 0
 
     #función que carga el inventario desde la base de datos, devuelve una lista de diccionarios con los alimentos y
     # sus cantidades, fuentes y fechas de actualización
