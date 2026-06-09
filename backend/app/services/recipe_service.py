@@ -2,7 +2,7 @@ import httpx
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL = "llama3.2:3b"
-INVENTORY_URL = "http://127.0.0.1:8000/inventory"
+INVENTORY_URL = "http://127.0.0.1:8000/inventory/db"
 
 async def obtener_inventario() -> list[str]:
     """Obtiene la lista de ingredientes desde la API de inventario."""

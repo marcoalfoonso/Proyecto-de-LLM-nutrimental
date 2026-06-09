@@ -576,7 +576,7 @@ chatForm.addEventListener('submit', async (e) => {
   addThinking();
 
   try {
-    const res = await fetch(`${BACKEND}/chat`, {
+    const res = await fetch(`${BACKEND}/chat/admin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg, ...getConfig() })
