@@ -3,7 +3,7 @@ from services.recipe_service import generar_receta, generar_lista_compras
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL = "llama3.2:3b"
-INVENTORY_URL = "http://127.0.0.1:8000/inventory"
+INVENTORY_URL = "http://127.0.0.1:8000/inventory/db"
 INVENTORY_ADD_URL = "http://127.0.0.1:8000/inventory/add"
 
 async def obtener_inventario() -> list[str]:
