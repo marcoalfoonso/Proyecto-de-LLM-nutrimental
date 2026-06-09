@@ -25,11 +25,16 @@ async def recibir_mensaje(entrada: MensajeEntrada):
     if not entrada.mensaje.strip():
         raise HTTPException(status_code=400, detail="Mensaje vacío")
 
-    historial.append({"numero": entrada.numero, "mensaje": entrada.mensaje})
-    print(f"📋 Historial: {len(historial)} mensajes")
-
     respuesta = await consultar_llm(entrada.mensaje)
     print(f"✅ Respuesta: {respuesta}")
+
+    # Guardar mensaje Y respuesta en historial
+    historial.append({
+        "numero": entrada.numero,
+        "mensaje": entrada.mensaje,
+        "respuesta": respuesta
+    })
+    print(f"📋 Historial: {len(historial)} mensajes")
 
     return RespuestaChat(numero=entrada.numero, respuesta=respuesta)
 
