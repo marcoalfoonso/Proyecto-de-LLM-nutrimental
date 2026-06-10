@@ -5,6 +5,9 @@ const axios = require('axios');
 // ─── CONFIGURACIÓN ───────────────────────────────────────────────
 const BACKEND_URL = 'http://127.0.0.1:8000';
 
+// Tiempo de arranque — ignorar mensajes anteriores a este momento
+const BOT_START_TIME = Date.now();
+
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
@@ -31,6 +34,9 @@ client.on('message', async (msg) => {
     if (msg.from === 'status@broadcast') return;
     if (msg.from.includes('@g.us')) return;
     if (!msg.body || msg.body.trim() === '') return;
+
+    // Ignorar mensajes que llegaron antes de que el bot arrancara
+    if (msg.timestamp * 1000 < BOT_START_TIME) return;
 
     console.log(`\n📩 Mensaje de ${msg.from}: ${msg.body}`);
 
