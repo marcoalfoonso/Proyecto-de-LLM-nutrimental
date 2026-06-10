@@ -11,7 +11,7 @@ async def obtener_inventario() -> list[str]:
         response = await client.get(INVENTORY_URL)
         response.raise_for_status()
         data = response.json()
-        return [item["nombre"] for item in data.get("inventory", [])]
+        return [item["name"] for item in data.get("inventory", [])]
 
 async def agregar_producto(nombre: str, cantidad: int = 1) -> bool:
     try:
@@ -144,12 +144,7 @@ async def consultar_llm(mensaje: str) -> str:
             "model": MODEL,
             "prompt": prompt,
             "stream": False,
-            "options": {
-                "temperature": 0.7,
-                "top_p": 0.9,
-                "num_predict": 200,
-                "repeat_penalty": 1.1
-            }
+            "options": {"temperature": 0.7, "top_p": 0.9, "num_predict": 200, "repeat_penalty": 1.1}
         })
         response.raise_for_status()
         return response.json().get("response", "").strip()
