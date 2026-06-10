@@ -1,127 +1,602 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alacena Inteligente — Copilotos</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Alacena Inteligente — Dashboard</title>
+<style>
+:root{
+  --navy:#52b788;--orange:#1a7a4a;--yellow:#52b788;--green:#d8f3dc;--teal:#0f5c36;
+  --navy-light:#6bc49a;--orange-light:#2ea86a;--bg:#f4f6f8;--card:#fff;
+  --text:#1a2530;--muted:#6b7c8a;--border:#dde3e8;
+  --font:'Segoe UI',system-ui,sans-serif;--mono:'Consolas','Cascadia Code',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:#52b788;flex-shrink:0;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0}
+.sidebar-logo{padding:1.25rem 1rem;display:flex;align-items:center;gap:.65rem;border-bottom:1px solid rgba(255,255,255,.1)}
+.logo-icon{width:36px;height:36px;background:#1a7a4a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.logo-text{color:#fff;font-size:.95rem;font-weight:700;line-height:1.2}
+.logo-sub{color:rgba(255,255,255,.5);font-size:.7rem;font-weight:400}
+.nav{flex:1;padding:.75rem 0}
+.nav-item{display:flex;align-items:center;gap:.65rem;padding:.65rem 1rem;color:rgba(255,255,255,.65);font-size:.85rem;cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:rgba(26,122,74,.25);color:#fff;border-left-color:#1a7a4a}
+.nav-icon{font-size:18px;width:20px;text-align:center}
+.nav-section{padding:.5rem 1rem .25rem;color:rgba(255,255,255,.3);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;margin-top:.5rem}
+.sidebar-footer{padding:.75rem 1rem;border-top:1px solid rgba(255,255,255,.1)}
+.status-pill{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:rgba(255,255,255,.5);padding:.4rem .65rem;background:rgba(255,255,255,.05);border-radius:8px}
+.dot{width:7px;height:7px;border-radius:50%;background:#aaa;flex-shrink:0}
+.dot.on{background:#A0C382}
+.dot.off{background:#e06060}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;gap:1rem}
+.topbar-title{font-size:1rem;font-weight:700;color:var(--text)}
+.topbar-sub{font-size:.8rem;color:var(--muted);margin-left:.5rem}
+.topbar-right{margin-left:auto;display:flex;gap:.5rem}
+.btn{padding:.45rem .9rem;border:none;border-radius:8px;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.88}
+.btn-orange{background:#1a7a4a;color:#fff}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-teal{background:#0f5c36;color:#fff}
+.btn-red{background:#e05050;color:#fff}
+.btn-green{background:#52b788;color:#fff}
+
+/* CONTENT */
+.content{padding:1.25rem 1.5rem;flex:1;overflow-y:auto}
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:1rem}
+.card-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.85rem;display:flex;align-items:center;gap:.4rem}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-bottom:1rem}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem}
+.stat-val{font-size:1.8rem;font-weight:700;line-height:1;margin-bottom:.25rem}
+.stat-label{font-size:.75rem;color:var(--muted);font-weight:500}
+.stat-orange .stat-val{color:#1a7a4a}
+.stat-teal .stat-val{color:#0f5c36}
+.stat-green .stat-val{color:#52b788}
+.stat-yellow .stat-val{color:#2ea86a}
+
+/* INVENTORY TABLE */
+.inv-toolbar{display:flex;gap:.65rem;margin-bottom:.85rem;flex-wrap:wrap}
+.inv-toolbar input{flex:1;min-width:180px;padding:.5rem .75rem;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.inv-toolbar input:focus{outline:2px solid var(--teal);outline-offset:1px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:#f8fafb;padding:.6rem .85rem;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1.5px solid var(--border)}
+td{padding:.65rem .85rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.badge{display:inline-block;padding:.2rem .6rem;border-radius:20px;font-size:.72rem;font-weight:600}
+.badge-green{background:#eaf6e0;color:#3a6b15}
+.badge-orange{background:#fff0e6;color:#c05010}
+.badge-red{background:#fdeaea;color:#a02020}
+.icon-btn{background:none;border:none;cursor:pointer;padding:.3rem;border-radius:6px;color:var(--muted);font-size:16px}
+.icon-btn:hover{background:var(--bg);color:var(--text)}
+
+/* ADD FORM */
+.add-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.65rem;align-items:end;margin-top:.85rem;padding-top:.85rem;border-top:1px solid var(--border)}
+.add-form label{font-size:.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:.3rem}
+.add-form input,.add-form select{width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem}
+.add-form input:focus,.add-form select:focus{outline:2px solid var(--teal)}
+
+/* WHATSAPP HISTORY */
+.wa-list{display:flex;flex-direction:column;gap:.75rem;max-height:520px;overflow-y:auto}
+.wa-item{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.wa-user-row{background:#f0f7f5;padding:.55rem .85rem;display:flex;align-items:center;gap:.5rem}
+.wa-num{font-size:.72rem;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.wa-msg{font-size:.85rem;color:var(--text);margin-left:.3rem}
+.wa-bot-row{background:var(--card);padding:.55rem .85rem}
+.wa-bot-label{font-size:.7rem;color:var(--orange);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.25rem}
+.wa-bot-text{font-size:.83rem;color:var(--muted);line-height:1.4;white-space:pre-wrap}
+.wa-empty{text-align:center;color:var(--muted);padding:2rem;font-size:.9rem}
+
+/* CHAT / COPILOTOS */
+.chat-layout{display:grid;grid-template-columns:260px 1fr;gap:1rem}
+.profile-list{display:flex;flex-direction:column;gap:.5rem}
+.profile-card{border:1.5px solid var(--border);border-radius:10px;padding:.75rem .85rem;cursor:pointer;transition:all .15s}
+.profile-card:hover{border-color:var(--orange)}
+.profile-card.active{border-color:var(--orange);background:#fff8f4}
+.profile-name{font-size:.88rem;font-weight:700;margin-bottom:.2rem}
+.profile-desc{font-size:.75rem;color:var(--muted);line-height:1.4}
+.chat-area{background:#f3f5f7;border-radius:10px;padding:.75rem;min-height:360px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:.65rem}
+.bubble{max-width:85%;padding:.65rem .9rem;border-radius:12px;font-size:.88rem;line-height:1.5;white-space:pre-wrap}
+.bubble-user{align-self:flex-end;background:#1a7a4a;color:#fff;border-bottom-right-radius:4px}
+.bubble-bot{align-self:flex-start;background:var(--card);border:1px solid var(--border);border-bottom-left-radius:4px}
+.bubble-error{align-self:flex-start;background:#fdeaea;border:1px solid #f5b5b5;color:#a02020}
+.bubble-label{font-size:.68rem;font-weight:700;opacity:.6;margin-bottom:.25rem;display:block}
+.thinking{align-self:flex-start;font-size:.78rem;color:var(--muted);padding:.45rem .75rem;background:var(--card);border:1px solid var(--border);border-radius:10px;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.chat-form{display:flex;gap:.65rem;margin-top:.75rem}
+.chat-form textarea{flex:1;padding:.6rem .8rem;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem;resize:none;min-height:52px}
+.chat-form textarea:focus{outline:2px solid var(--orange)}
+
+/* METRICS BAR */
+.metrics-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.75rem}
+.mcard{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .65rem}
+.mcard-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.15rem}
+.mcard-val{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--teal)}
+
+/* CONFIG */
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.profile-editor{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem}
+.profile-editor h3{font-size:.85rem;font-weight:700;margin-bottom:.85rem;display:flex;align-items:center;gap:.4rem}
+.profile-editor textarea{width:100%;padding:.6rem .75rem;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.82rem;resize:vertical;min-height:140px}
+.profile-editor textarea:focus{outline:2px solid var(--teal)}
+.slider-row{display:flex;align-items:center;gap:.65rem;margin-top:.35rem}
+.slider-row input[type=range]{flex:1;accent-color:var(--orange)}
+.slider-val{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--orange);min-width:32px;text-align:right}
+.form-label{font-size:.78rem;font-weight:600;color:var(--muted);display:block;margin:.75rem 0 .3rem}
+</style>
 </head>
 <body>
-  <main class="app">
-    <section class="header">
-      <div class="header-logo">🥫</div>
-      <div>
-        <h1>Alacena Inteligente</h1>
-        <p>Copilotos especializados con Ollama — elige un perfil y conversa con tu asistente</p>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🥫</div>
+    <div>
+      <div class="logo-text">Alacena</div>
+      <div class="logo-sub">Panel inteligente</div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="showSection('dashboard',this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showSection('inventario',this)">
+      <span class="nav-icon">📋</span> Inventario
+    </div>
+    <div class="nav-section">Comunicación</div>
+    <div class="nav-item" onclick="showSection('whatsapp',this)">
+      <span class="nav-icon">💬</span> WhatsApp
+    </div>
+    <div class="nav-item" onclick="showSection('copilotos',this)">
+      <span class="nav-icon">🤖</span> Copilotos
+    </div>
+    <div class="nav-section">Sistema</div>
+    <div class="nav-item" onclick="showSection('config',this)">
+      <span class="nav-icon">⚙️</span> Configuración
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="status-pill">
+      <span class="dot" id="dotBackend"></span> Backend
+    </div>
+    <div class="status-pill" style="margin-top:.4rem">
+      <span class="dot" id="dotOllama"></span> Ollama
+    </div>
+    <div class="status-pill" style="margin-top:.4rem">
+      <span class="dot" id="dotWA"></span> WhatsApp Bot
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <span class="topbar-title" id="topbarTitle">Dashboard</span>
+      <span class="topbar-sub" id="topbarSub">Resumen general del sistema</span>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-outline" onclick="refreshAll()">↺ Actualizar</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="section active" id="sec-dashboard">
+      <div class="stats-grid">
+        <div class="stat stat-orange"><div class="stat-val" id="st-productos">—</div><div class="stat-label">Productos en alacena</div></div>
+        <div class="stat stat-teal"><div class="stat-val" id="st-mensajes">—</div><div class="stat-label">Mensajes WhatsApp</div></div>
+        <div class="stat stat-green"><div class="stat-val" id="st-agotados">—</div><div class="stat-label">Productos agotados</div></div>
+        <div class="stat stat-yellow"><div class="stat-val" id="st-model">qwen2.5:7b</div><div class="stat-label">Modelo activo</div></div>
       </div>
-    </section>
-
-    <section class="layout">
-      <!-- CONFIGURACIÓN -->
-      <aside class="controls">
-        <h2>Configuración</h2>
-
-        <label>
-          Modelo
-          <select id="model">
-            <option value="llama3.2:3b">llama3.2:3b</option>
-            <option value="gemma3:4b">gemma3:4b</option>
-            <option value="qwen2.5:7b" selected>qwen2.5:7b</option>
-            <option value="mistral:7b">mistral:7b</option>
-            <option value="phi4-mini">phi4-mini</option>
-            <option value="tinyllama:1.1b-chat-v1-q8_0">tinyllama 1.1b</option>
-          </select>
-        </label>
-
-        <label>
-          Perfil de copiloto
-          <select id="copilot_profile">
-            <option value="generico">🤖 Asistente genérico</option>
-            <option value="administrador">📋 Administrador de alacena</option>
-            <option value="nutriologo">🥗 Nutriólogo virtual</option>
-            <option value="comprador">🛒 Asistente de compras</option>
-          </select>
-        </label>
-
-        <button id="loadProfileBtn" type="button">↺ Cargar plantilla del perfil</button>
-
-        <label>
-          System prompt
-          <textarea id="system_prompt" rows="10" placeholder="Cargando perfil..."></textarea>
-        </label>
-
-        <label>
-          Temperatura
-          <div class="slider-row">
-            <input id="temperature" type="range" min="0" max="1.2" step="0.05" value="0.7"
-              oninput="document.getElementById('tempVal').textContent=parseFloat(this.value).toFixed(2)">
-            <span id="tempVal" class="slider-val">0.70</span>
-          </div>
-        </label>
-
-        <label>
-          Top-p
-          <div class="slider-row">
-            <input id="top_p" type="range" min="0.1" max="1" step="0.05" value="0.9"
-              oninput="document.getElementById('topPVal').textContent=parseFloat(this.value).toFixed(2)">
-            <span id="topPVal" class="slider-val">0.90</span>
-          </div>
-        </label>
-
-        <label>
-          Repeat penalty
-          <div class="slider-row">
-            <input id="repeat_penalty" type="range" min="1" max="2" step="0.05" value="1.1"
-              oninput="document.getElementById('rpVal').textContent=parseFloat(this.value).toFixed(2)">
-            <span id="rpVal" class="slider-val">1.10</span>
-          </div>
-        </label>
-
-        <label>
-          Tokens máximos
-          <input id="num_predict" type="number" min="20" max="1000" step="10" value="180" />
-        </label>
-
-        <label>
-          Contexto
-          <select id="num_ctx">
-            <option value="2048">2 048</option>
-            <option value="4096" selected>4 096</option>
-            <option value="8192">8 192</option>
-          </select>
-        </label>
-
-        <button id="clearBtn" type="button">🗑 Limpiar conversación</button>
-      </aside>
-
-      <!-- CHAT -->
-      <section class="chat-panel">
-        <div class="comparison-note">
-          <strong>💡 Prueba sugerida:</strong>
-          Usa el mismo prompt con el perfil <em>Asistente genérico</em> y luego con un perfil especializado para comparar las respuestas.
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="card">
+          <div class="card-title">📋 Últimos productos agregados</div>
+          <div id="dash-inv">Cargando...</div>
         </div>
+        <div class="card">
+          <div class="card-title">💬 Últimos mensajes WhatsApp</div>
+          <div id="dash-wa">Cargando...</div>
+        </div>
+      </div>
+    </div>
 
-        <div id="chat" class="chat"></div>
-
-        <form id="chatForm" class="chat-form">
-          <textarea id="message" rows="3"
-            placeholder="Ej: ¿Qué puedo cocinar hoy? / ¿Qué me falta comprar? / Dame una receta balanceada..."
-            required></textarea>
-          <button id="sendBtn" type="submit">Enviar →</button>
-        </form>
-
-        <!-- MÉTRICAS -->
-        <section class="metrics">
-          <h2>Métricas de la última respuesta</h2>
-          <div id="profileInfo" class="profile-info">Sin perfil usado todavía</div>
-          <div id="metricsGrid" class="metrics-grid">
-            <span class="no-data">Sin datos todavía</span>
+    <!-- ── INVENTARIO ── -->
+    <div class="section" id="sec-inventario">
+      <div class="card">
+        <div class="card-title">📋 Inventario de la alacena</div>
+        <div class="inv-toolbar">
+          <input type="text" id="invSearch" placeholder="Buscar producto..." oninput="filterInventory()">
+          <button class="btn btn-teal" onclick="loadInventory()">↺ Recargar</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Producto</th><th>Cantidad</th><th>Fuente</th><th>Última actualización</th><th>Estado</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="invBody">
+              <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:1.5rem">Cargando inventario...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="add-form" id="addForm">
+          <div>
+            <label>Producto</label>
+            <input type="text" id="addNombre" placeholder="ej. tomates">
           </div>
-        </section>
-      </section>
-    </section>
-  </main>
+          <div>
+            <label>Cantidad</label>
+            <input type="number" id="addCantidad" value="1" min="1">
+          </div>
+          <div>
+            <label>Fuente</label>
+            <select id="addFuente">
+              <option value="manual">Manual</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="camara">Cámara</option>
+            </select>
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button class="btn btn-orange" onclick="addProduct()">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <script src="app.js"></script>
+    <!-- ── WHATSAPP ── -->
+    <div class="section" id="sec-whatsapp">
+      <div class="card">
+        <div class="card-title">💬 Historial de mensajes WhatsApp
+          <button class="btn btn-outline" style="margin-left:auto;font-size:.75rem;padding:.3rem .7rem" onclick="loadWA()">↺ Actualizar</button>
+        </div>
+        <div class="wa-list" id="waList">
+          <div class="wa-empty">Cargando mensajes...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COPILOTOS ── -->
+    <div class="section" id="sec-copilotos">
+      <div class="chat-layout">
+        <div>
+          <div class="card-title" style="margin-bottom:.65rem">Perfil de copiloto</div>
+          <div class="profile-list" id="profileList"></div>
+          <div style="margin-top:1rem">
+            <div class="card-title">Modelo</div>
+            <select id="chatModel" style="width:100%;padding:.5rem;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.83rem">
+              <option value="llama3.2:3b">llama3.2:3b</option>
+              <option value="gemma3:4b">gemma3:4b</option>
+              <option value="qwen2.5:7b" selected>qwen2.5:7b</option>
+              <option value="mistral:7b">mistral:7b</option>
+              <option value="phi4-mini">phi4-mini</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <div class="chat-area" id="chatArea"></div>
+          <div class="chat-form">
+            <textarea id="chatMsg" rows="2" placeholder="Escribe tu mensaje..."></textarea>
+            <button class="btn btn-orange" id="chatSend" onclick="sendChat()">Enviar →</button>
+          </div>
+          <div class="metrics-bar" id="chatMetrics" style="display:none">
+            <div class="mcard"><div class="mcard-label">Tiempo</div><div class="mcard-val" id="m-time">—</div></div>
+            <div class="mcard"><div class="mcard-label">Tokens/s</div><div class="mcard-val" id="m-tps">—</div></div>
+            <div class="mcard"><div class="mcard-label">Tokens entrada</div><div class="mcard-val" id="m-in">—</div></div>
+            <div class="mcard"><div class="mcard-label">Tokens salida</div><div class="mcard-val" id="m-out">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONFIG ── -->
+    <div class="section" id="sec-config">
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-title">⚙️ Parámetros del modelo</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+          <div>
+            <label class="form-label">Temperature</label>
+            <div class="slider-row">
+              <input type="range" id="cfgTemp" min="0" max="1.2" step="0.05" value="0.7" oninput="document.getElementById('cfgTempVal').textContent=parseFloat(this.value).toFixed(2)">
+              <span class="slider-val" id="cfgTempVal">0.70</span>
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Top-p</label>
+            <div class="slider-row">
+              <input type="range" id="cfgTopP" min="0.1" max="1" step="0.05" value="0.9" oninput="document.getElementById('cfgTopPVal').textContent=parseFloat(this.value).toFixed(2)">
+              <span class="slider-val" id="cfgTopPVal">0.90</span>
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Repeat penalty</label>
+            <div class="slider-row">
+              <input type="range" id="cfgRP" min="1" max="2" step="0.05" value="1.1" oninput="document.getElementById('cfgRPVal').textContent=parseFloat(this.value).toFixed(2)">
+              <span class="slider-val" id="cfgRPVal">1.10</span>
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Tokens máximos</label>
+            <input type="number" id="cfgPredict" value="180" min="20" max="1000" step="10" style="width:100%;padding:.5rem;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem">
+          </div>
+          <div>
+            <label class="form-label">Contexto</label>
+            <select id="cfgCtx" style="width:100%;padding:.5rem;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:.85rem">
+              <option value="2048">2 048</option>
+              <option value="4096" selected>4 096</option>
+              <option value="8192">8 192</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card-title" style="margin-bottom:.75rem">System prompts de los perfiles</div>
+      <div class="config-grid" id="profileEditors"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'http://127.0.0.1:8000';
+let profiles = {};
+let inventory = [];
+let activeProfile = 'generico';
+
+function escH(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+// ── NAV ───────────────────────────────────────────────
+const titles = {
+  dashboard: ['Dashboard','Resumen general del sistema'],
+  inventario: ['Inventario','Gestión de productos'],
+  whatsapp: ['WhatsApp','Historial de mensajes'],
+  copilotos: ['Copilotos','Chat con agentes especializados'],
+  config: ['Configuración','Parámetros y system prompts'],
+};
+
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('topbarTitle').textContent = titles[id][0];
+  document.getElementById('topbarSub').textContent = titles[id][1];
+  if(id==='inventario') loadInventory();
+  if(id==='whatsapp') loadWA();
+  if(id==='dashboard') loadDashboard();
+}
+
+// ── STATUS ────────────────────────────────────────────
+async function checkStatus(){
+  try{
+    const r = await fetch(`${API}/`);
+    document.getElementById('dotBackend').className = r.ok ? 'dot on' : 'dot off';
+  }catch{ document.getElementById('dotBackend').className='dot off'; }
+  try{
+    const r = await fetch('http://localhost:11434/api/tags');
+    document.getElementById('dotOllama').className = r.ok ? 'dot on' : 'dot off';
+  }catch{ document.getElementById('dotOllama').className='dot off'; }
+  try{
+    const r = await fetch(`${API}/chat/historial`);
+    document.getElementById('dotWA').className = r.ok ? 'dot on' : 'dot off';
+  }catch{ document.getElementById('dotWA').className='dot off'; }
+}
+
+// ── DASHBOARD ─────────────────────────────────────────
+async function loadDashboard(){
+  try{
+    const inv = await (await fetch(`${API}/inventory/db`)).json();
+    const items = inv.inventory || [];
+    document.getElementById('st-productos').textContent = items.length;
+    const agotados = items.filter(i=>i.quantity<=1).length;
+    document.getElementById('st-agotados').textContent = agotados;
+    document.getElementById('dash-inv').innerHTML = items.slice(-5).reverse().map(i=>`
+      <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.83rem">
+        <span>${escH(i.name)}</span>
+        <span style="color:var(--muted)">x${i.quantity}</span>
+      </div>`).join('') || '<div style="color:var(--muted);font-size:.83rem">Sin productos</div>';
+  }catch(e){ document.getElementById('dash-inv').textContent='Error al cargar'; }
+  try{
+    const wa = await (await fetch(`${API}/chat/historial`)).json();
+    const msgs = wa.mensajes || [];
+    document.getElementById('st-mensajes').textContent = msgs.length;
+    document.getElementById('dash-wa').innerHTML = msgs.slice(-4).reverse().map(m=>`
+      <div style="padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.82rem">
+        <div style="color:var(--teal);font-size:.7rem;font-weight:700;margin-bottom:.15rem">USUARIO</div>
+        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(m.mensaje)}</div>
+      </div>`).join('') || '<div style="color:var(--muted);font-size:.83rem">Sin mensajes</div>';
+  }catch(e){ document.getElementById('dash-wa').textContent='Error al cargar'; }
+}
+
+// ── INVENTORY ─────────────────────────────────────────
+async function loadInventory(){
+  try{
+    const r = await fetch(`${API}/inventory/db`);
+    const data = await r.json();
+    inventory = data.inventory || [];
+    renderInventory(inventory);
+  }catch(e){ document.getElementById('invBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:1.5rem">Error al cargar inventario</td></tr>'; }
+}
+
+function renderInventory(items){
+  const tbody = document.getElementById('invBody');
+  if(!items.length){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:1.5rem">Inventario vacío</td></tr>'; return; }
+  tbody.innerHTML = items.map(i=>{
+    const badge = i.quantity<=0 ? '<span class="badge badge-red">Agotado</span>'
+      : i.quantity<=2 ? '<span class="badge badge-orange">Bajo</span>'
+      : '<span class="badge badge-green">OK</span>';
+    return `<tr>
+      <td style="color:var(--muted);font-size:.8rem">${i.id}</td>
+      <td><strong>${escH(i.name)}</strong></td>
+      <td>${i.quantity}</td>
+      <td><span class="badge badge-green" style="background:#e8f0fe;color:#2040a0">${escH(i.source||'—')}</span></td>
+      <td style="color:var(--muted);font-size:.78rem">${i.last_update||'—'}</td>
+      <td>${badge}</td>
+      <td>
+        <button class="icon-btn" onclick="removeProduct('${escH(i.name)}')" title="Quitar 1 unidad">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterInventory(){
+  const q = document.getElementById('invSearch').value.toLowerCase();
+  renderInventory(inventory.filter(i=>i.name.toLowerCase().includes(q)));
+}
+
+async function addProduct(){
+  const nombre = document.getElementById('addNombre').value.trim();
+  const cantidad = parseInt(document.getElementById('addCantidad').value)||1;
+  const fuente = document.getElementById('addFuente').value;
+  if(!nombre) return alert('Escribe el nombre del producto');
+  try{
+    const r = await fetch(`${API}/inventory/add`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,cantidad,fuente})});
+    if(r.ok){ document.getElementById('addNombre').value=''; loadInventory(); }
+    else alert('Error al agregar producto');
+  }catch(e){ alert('Error de conexión'); }
+}
+
+async function removeProduct(name){
+  if(!confirm(`¿Quitar 1 unidad de "${name}"?`)) return;
+  try{
+    const r = await fetch(`${API}/inventory/remove`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre:name,cantidad:1,fuente:'manual'})});
+    if(r.ok) loadInventory();
+    else alert('Error al quitar producto');
+  }catch(e){ alert('Error de conexión'); }
+}
+
+// ── WHATSAPP ──────────────────────────────────────────
+async function loadWA(){
+  const list = document.getElementById('waList');
+  list.innerHTML='<div class="wa-empty">Cargando...</div>';
+  try{
+    const r = await fetch(`${API}/chat/historial`);
+    const data = await r.json();
+    const msgs = (data.mensajes||[]).slice().reverse().slice(0,30);
+    if(!msgs.length){ list.innerHTML='<div class="wa-empty">No hay mensajes aún</div>'; return; }
+    list.innerHTML = msgs.map(m=>`
+      <div class="wa-item">
+        <div class="wa-user-row">
+          <span class="wa-num">👤 Usuario</span>
+          <span class="wa-msg">${escH(m.mensaje)}</span>
+        </div>
+        <div class="wa-bot-row">
+          <div class="wa-bot-label">🤖 Bot</div>
+          <div class="wa-bot-text">${m.respuesta ? escH(m.respuesta) : '<em style="opacity:.5">Sin respuesta registrada</em>'}</div>
+        </div>
+      </div>`).join('');
+  }catch(e){ list.innerHTML='<div class="wa-empty" style="color:#a02020">Error al cargar historial</div>'; }
+}
+
+// ── COPILOTOS ─────────────────────────────────────────
+async function loadProfiles(){
+  try{
+    const r = await fetch(`${API}/profiles`);
+    profiles = await r.json();
+    renderProfileList();
+    renderProfileEditors();
+  }catch(e){ console.error('No se pudieron cargar perfiles'); }
+}
+
+function renderProfileList(){
+  const icons = {generico:'🤖',administrador:'📋',nutriologo:'🥗',comprador:'🛒'};
+  document.getElementById('profileList').innerHTML = Object.entries(profiles).map(([id,p])=>`
+    <div class="profile-card ${id===activeProfile?'active':''}" onclick="selectProfile('${id}')">
+      <div class="profile-name">${icons[id]||'🤖'} ${escH(p.label)}</div>
+    </div>`).join('');
+}
+
+function selectProfile(id){
+  activeProfile = id;
+  renderProfileList();
+}
+
+function renderProfileEditors(){
+  document.getElementById('profileEditors').innerHTML = Object.entries(profiles).map(([id,p])=>`
+    <div class="profile-editor">
+      <h3>${escH(p.label)}</h3>
+      <textarea id="prompt-${id}" rows="7">${escH(p.system_prompt)}</textarea>
+      <button class="btn btn-teal" style="margin-top:.65rem;width:auto;padding:.4rem .9rem;font-size:.8rem" onclick="savePrompt('${id}')">Guardar</button>
+    </div>`).join('');
+}
+
+function savePrompt(id){
+  if(profiles[id]) profiles[id].system_prompt = document.getElementById(`prompt-${id}`).value;
+  alert(`System prompt de "${profiles[id].label}" actualizado localmente.`);
+}
+
+function addChatBubble(role,text,type){
+  const div = document.createElement('div');
+  div.className=`bubble bubble-${type}`;
+  div.innerHTML=`<span class="bubble-label">${escH(role)}</span>${escH(text)}`;
+  document.getElementById('chatArea').appendChild(div);
+  document.getElementById('chatArea').scrollTop=9999;
+}
+
+function addThinking(){
+  const el=document.createElement('div');el.className='thinking';el.textContent='Generando respuesta...';el.id='thinking';
+  document.getElementById('chatArea').appendChild(el);document.getElementById('chatArea').scrollTop=9999;
+}
+function removeThinking(){ const el=document.getElementById('thinking');if(el)el.remove(); }
+
+async function sendChat(){
+  const msg = document.getElementById('chatMsg').value.trim();
+  if(!msg) return;
+  addChatBubble('Tú',msg,'user');
+  document.getElementById('chatMsg').value='';
+  document.getElementById('chatSend').disabled=true;
+  addThinking();
+  const p = profiles[activeProfile]||{};
+  const payload={
+    message:msg,model:document.getElementById('chatModel').value,
+    copilot_profile:activeProfile,
+    system_prompt:document.getElementById(`prompt-${activeProfile}`)?.value||p.system_prompt||'',
+    temperature:parseFloat(document.getElementById('cfgTemp').value),
+    top_p:parseFloat(document.getElementById('cfgTopP').value),
+    num_predict:parseInt(document.getElementById('cfgPredict').value),
+    num_ctx:parseInt(document.getElementById('cfgCtx').value),
+    repeat_penalty:parseFloat(document.getElementById('cfgRP').value),
+  };
+  try{
+    const r=await fetch(`${API}/chat/admin`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await r.json();removeThinking();
+    if(!r.ok) throw new Error(data.detail||'Error del backend');
+    addChatBubble(`Copiloto — ${data.copilot_label}`,data.reply,'bot');
+    const m=data.metrics;
+    document.getElementById('m-time').textContent=m.wall_time_s.toFixed(2)+' s';
+    document.getElementById('m-tps').textContent=m.tokens_per_second.toFixed(1);
+    document.getElementById('m-in').textContent=m.prompt_eval_count;
+    document.getElementById('m-out').textContent=m.eval_count;
+    document.getElementById('chatMetrics').style.display='grid';
+  }catch(e){ removeThinking();addChatBubble('Error',e.message,'error'); }
+  finally{ document.getElementById('chatSend').disabled=false; }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.target.id==='chatMsg'&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}
+});
+
+function refreshAll(){ checkStatus();loadDashboard();loadInventory();loadWA(); }
+
+// ── INIT ──────────────────────────────────────────────
+checkStatus();
+loadProfiles();
+loadDashboard();
+setInterval(checkStatus,10000);
+setInterval(()=>{ if(document.getElementById('sec-whatsapp').classList.contains('active')) loadWA(); },15000);
+</script>
 </body>
 </html>
