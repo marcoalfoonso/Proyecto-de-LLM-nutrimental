@@ -108,16 +108,23 @@ async def consultar_llm(mensaje: str) -> str:
         return "❌ No se pudo agregar ningún producto."
 
     # ── RECETA ──────────────────────────────────────────────────
-    if any(p in texto for p in ["receta", "cocinar", "qué hago", "que hago",
-                                  "qué puedo", "que puedo", "prepara", "hazme", "sugiere",
-                                  "ramen", "pasta", "sopa", "ensalada", "desayuno",
-                                  "cena", "almuerzo"]):
+    if any(p in texto for p in [
+        "receta", "cocinar", "qué hago", "que hago",
+        "qué puedo", "que puedo", "prepara", "hazme", "sugiere",
+        "ramen", "pasta", "sopa", "ensalada", "desayuno",
+        "cena", "almuerzo", "comer", "qué como", "que como",
+        "hacer de comer", "hacer de cenar", "hacer de desayunar",
+        "qué hago de", "que hago de", "qué preparo", "que preparo",
+        "qué puedo hacer", "que puedo hacer", "qué cocino", "que cocino"
+    ]):
         return await generar_receta(mensaje)
 
     # ── LISTA DE COMPRAS ────────────────────────────────────────
-    if any(p in texto for p in ["compras", "lista de compras", "falta", "necesito comprar",
-                                  "qué falta", "que falta", "qué me falta", "que me falta",
-                                  "qué necesito", "que necesito"]):
+    if any(p in texto for p in [
+        "compras", "lista de compras", "falta", "necesito comprar",
+        "qué falta", "que falta", "qué me falta", "que me falta",
+        "qué necesito", "que necesito"
+    ]):
         return await generar_lista_compras(mensaje)
 
     # ── AYUDA / HOLA ────────────────────────────────────────────
@@ -131,6 +138,7 @@ async def consultar_llm(mensaje: str) -> str:
             "➕ *agregué [producto]* — agregar producto al inventario\n\n"
             "_Ejemplos:_\n"
             "_'Qué tengo de comida'_\n"
+            "_'Qué puedo hacer de comer?'_\n"
             "_'Dame una receta de pasta'_\n"
             "_'Agregué una piña y 3 zanahorias'_\n"
             "_'Qué me falta comprar'_"
