@@ -6,402 +6,126 @@
   <title>Alacena Inteligente — Panel Admin</title>
   <style>
     :root {
-      --verde: #1a7a4a;
-      --verde-claro: #e6f4ed;
-      --verde-mid: #2ea86a;
-      --gris-oscuro: #1c1f26;
-      --gris-medio: #3a3f4b;
-      --gris-borde: #e2e8f0;
-      --fondo: #f5f7fa;
-      --blanco: #ffffff;
-      --texto: #1c1f26;
-      --muted: #6b7280;
-      --rojo: #e53e3e;
-      --amarillo: #f6ad55;
-      --azul: #3b82f6;
+      --verde: #1a7a4a; --verde-claro: #e6f4ed; --verde-mid: #2ea86a;
+      --gris-oscuro: #1c1f26; --gris-medio: #3a3f4b; --gris-borde: #e2e8f0;
+      --fondo: #f5f7fa; --blanco: #ffffff; --texto: #1c1f26; --muted: #6b7280;
+      --rojo: #e53e3e; --azul: #3b82f6;
       --font: 'Segoe UI', system-ui, sans-serif;
       --mono: 'Cascadia Code', 'Consolas', monospace;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--fondo); color: var(--texto); min-height: 100vh; }
 
-    body {
-      font-family: var(--font);
-      background: var(--fondo);
-      color: var(--texto);
-      min-height: 100vh;
-    }
-
-    /* ── HEADER ── */
     header {
-      background: var(--gris-oscuro);
-      color: #fff;
-      padding: 0 2rem;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      background: var(--gris-oscuro); color: #fff; padding: 0 2rem;
+      height: 56px; display: flex; align-items: center; gap: 1rem;
+      position: sticky; top: 0; z-index: 100;
     }
+    .logo { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+    .logo-icon { width: 28px; height: 28px; background: var(--verde-mid); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
-    .logo {
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
+    /* STATUS BAR */
+    .status-bar {
+      background: var(--gris-medio); padding: .5rem 2rem;
+      display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
     }
+    .svc { display: flex; align-items: center; gap: .4rem; font-size: .78rem; color: #d1d5db; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #4b5563; }
+    .dot.on { background: #48bb78; }
+    .dot.off { background: #ef4444; }
 
-    .logo-icon {
-      width: 28px;
-      height: 28px;
-      background: var(--verde-mid);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-
-    .header-badge {
-      margin-left: auto;
-      font-size: .75rem;
-      background: var(--verde);
-      padding: .25rem .75rem;
-      border-radius: 20px;
-      font-weight: 600;
-    }
-
-    /* ── LAYOUT ── */
-    .shell {
-      display: grid;
-      grid-template-columns: 280px 1fr 320px;
-      gap: 1rem;
-      padding: 1rem;
-      max-width: 1600px;
-      margin: 0 auto;
-      min-height: calc(100vh - 56px);
-    }
-
-    /* ── PANEL GENÉRICO ── */
-    .panel {
-      background: var(--blanco);
-      border: 1px solid var(--gris-borde);
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .panel-header {
-      padding: .85rem 1rem;
-      border-bottom: 1px solid var(--gris-borde);
-      font-size: .8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-
-    .panel-body { padding: 1rem; flex: 1; overflow-y: auto; }
-
-    /* ── CONFIGURACIÓN ── */
-    .config-section { margin-bottom: 1.25rem; }
-
-    .config-section h3 {
-      font-size: .7rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--muted);
-      margin-bottom: .6rem;
-      padding-bottom: .4rem;
-      border-bottom: 1px solid var(--gris-borde);
-    }
-
-    label {
-      display: block;
-      margin-bottom: .75rem;
-      font-size: .85rem;
-      font-weight: 600;
-    }
-
-    .label-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: .3rem;
-    }
-
-    .label-val {
-      font-family: var(--mono);
-      font-size: .8rem;
-      color: var(--verde);
-      font-weight: 700;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--verde);
-      cursor: pointer;
-    }
-
-    select, input[type="number"], textarea {
-      width: 100%;
-      padding: .55rem .75rem;
-      border: 1px solid var(--gris-borde);
-      border-radius: 8px;
-      font: inherit;
-      font-size: .85rem;
-      background: var(--fondo);
-    }
-
-    select:focus, input:focus, textarea:focus {
-      outline: 2px solid var(--verde);
-      outline-offset: 1px;
-    }
-
-    textarea { resize: vertical; min-height: 80px; }
-
-    .btn {
-      width: 100%;
-      padding: .65rem;
-      border: none;
-      border-radius: 8px;
-      font: inherit;
-      font-size: .9rem;
-      font-weight: 700;
-      cursor: pointer;
+    .btn-start {
+      margin-left: auto; padding: .4rem 1rem; border: none; border-radius: 6px;
+      font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer;
       transition: opacity .15s;
     }
+    .btn-start.start { background: var(--verde-mid); color: #fff; }
+    .btn-start.stop  { background: var(--rojo); color: #fff; }
+    .btn-start:disabled { opacity: .5; cursor: not-allowed; }
+
+    .shell {
+      display: grid; grid-template-columns: 280px 1fr 320px;
+      gap: 1rem; padding: 1rem; max-width: 1600px; margin: 0 auto;
+      min-height: calc(100vh - 96px);
+    }
+    .panel { background: var(--blanco); border: 1px solid var(--gris-borde); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .panel-header { padding: .85rem 1rem; border-bottom: 1px solid var(--gris-borde); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: flex; align-items: center; gap: .5rem; }
+    .panel-body { padding: 1rem; flex: 1; overflow-y: auto; }
+
+    .config-section { margin-bottom: 1.25rem; }
+    .config-section h3 { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .6rem; padding-bottom: .4rem; border-bottom: 1px solid var(--gris-borde); }
+    label { display: block; margin-bottom: .75rem; font-size: .85rem; font-weight: 600; }
+    .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: .3rem; }
+    .label-val { font-family: var(--mono); font-size: .8rem; color: var(--verde); font-weight: 700; }
+    input[type="range"] { width: 100%; accent-color: var(--verde); cursor: pointer; }
+    select, input[type="number"], textarea { width: 100%; padding: .55rem .75rem; border: 1px solid var(--gris-borde); border-radius: 8px; font: inherit; font-size: .85rem; background: var(--fondo); }
+    select:focus, input:focus, textarea:focus { outline: 2px solid var(--verde); outline-offset: 1px; }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .btn { width: 100%; padding: .65rem; border: none; border-radius: 8px; font: inherit; font-size: .9rem; font-weight: 700; cursor: pointer; transition: opacity .15s; }
     .btn:disabled { opacity: .5; cursor: not-allowed; }
     .btn-green { background: var(--verde); color: #fff; }
     .btn-dark  { background: var(--gris-medio); color: #fff; margin-top: .5rem; }
     .btn:not(:disabled):hover { opacity: .88; }
 
-    /* ── CHAT ── */
-    .chat-area {
-      flex: 1;
-      overflow-y: auto;
-      padding: .75rem;
-      background: #f8fafc;
-      display: flex;
-      flex-direction: column;
-      gap: .75rem;
-      min-height: 400px;
-    }
+    .chat-area { flex: 1; overflow-y: auto; padding: .75rem; background: #f8fafc; display: flex; flex-direction: column; gap: .75rem; min-height: 400px; }
+    .bubble { max-width: 85%; padding: .7rem 1rem; border-radius: 12px; font-size: .9rem; line-height: 1.5; white-space: pre-wrap; }
+    .bubble-user { align-self: flex-end; background: var(--verde); color: #fff; border-bottom-right-radius: 4px; }
+    .bubble-assistant { align-self: flex-start; background: var(--blanco); border: 1px solid var(--gris-borde); border-bottom-left-radius: 4px; }
+    .bubble-error { align-self: flex-start; background: #fff5f5; border: 1px solid #fed7d7; color: var(--rojo); }
+    .bubble-label { font-size: .7rem; font-weight: 700; margin-bottom: .3rem; opacity: .7; }
 
-    .bubble {
-      max-width: 85%;
-      padding: .7rem 1rem;
-      border-radius: 12px;
-      font-size: .9rem;
-      line-height: 1.5;
-      white-space: pre-wrap;
-    }
-
-    .bubble-user {
-      align-self: flex-end;
-      background: var(--verde);
-      color: #fff;
-      border-bottom-right-radius: 4px;
-    }
-
-    .bubble-assistant {
-      align-self: flex-start;
-      background: var(--blanco);
-      border: 1px solid var(--gris-borde);
-      border-bottom-left-radius: 4px;
-    }
-
-    .bubble-error {
-      align-self: flex-start;
-      background: #fff5f5;
-      border: 1px solid #fed7d7;
-      color: var(--rojo);
-    }
-
-    .bubble-label {
-      font-size: .7rem;
-      font-weight: 700;
-      margin-bottom: .3rem;
-      opacity: .7;
-    }
-
-    .chat-form {
-      padding: .75rem;
-      border-top: 1px solid var(--gris-borde);
-      display: flex;
-      gap: .5rem;
-    }
-
-    .chat-form textarea {
-      flex: 1;
-      min-height: 44px;
-      max-height: 120px;
-    }
-
-    .chat-form button {
-      align-self: flex-end;
-      padding: .55rem 1.2rem;
-      border: none;
-      border-radius: 8px;
-      background: var(--verde);
-      color: #fff;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }
+    .chat-form { padding: .75rem; border-top: 1px solid var(--gris-borde); display: flex; gap: .5rem; }
+    .chat-form textarea { flex: 1; min-height: 44px; max-height: 120px; }
+    .chat-form button { align-self: flex-end; padding: .55rem 1.2rem; border: none; border-radius: 8px; background: var(--verde); color: #fff; font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
     .chat-form button:disabled { opacity: .5; cursor: not-allowed; }
 
-    /* ── MÉTRICAS ── */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .6rem;
-      margin-top: .5rem;
-    }
+    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .5rem; }
+    .metric-card { background: var(--fondo); border: 1px solid var(--gris-borde); border-radius: 8px; padding: .6rem .75rem; }
+    .metric-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: .2rem; }
+    .metric-val { font-family: var(--mono); font-size: 1rem; font-weight: 700; color: var(--verde); }
 
-    .metric-card {
-      background: var(--fondo);
-      border: 1px solid var(--gris-borde);
-      border-radius: 8px;
-      padding: .6rem .75rem;
-    }
-
-    .metric-label {
-      font-size: .68rem;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      color: var(--muted);
-      margin-bottom: .2rem;
-    }
-
-    .metric-val {
-      font-family: var(--mono);
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--verde);
-    }
-
-    /* ── WHATSAPP PANEL ── */
-    .wa-list {
-      display: flex;
-      flex-direction: column;
-      gap: .6rem;
-    }
-
-    .wa-item {
-      border: 1px solid var(--gris-borde);
-      border-radius: 10px;
-      overflow: hidden;
-      font-size: .83rem;
-    }
-
-    .wa-user {
-      background: var(--verde-claro);
-      padding: .55rem .75rem;
-      border-bottom: 1px solid var(--gris-borde);
-    }
-
+    .wa-list { display: flex; flex-direction: column; gap: .6rem; }
+    .wa-item { border: 1px solid var(--gris-borde); border-radius: 10px; overflow: hidden; font-size: .83rem; }
+    .wa-user { background: var(--verde-claro); padding: .55rem .75rem; border-bottom: 1px solid var(--gris-borde); }
     .wa-user strong { color: var(--verde); font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; }
-
-    .wa-bot {
-      background: var(--blanco);
-      padding: .55rem .75rem;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
+    .wa-bot { background: var(--blanco); padding: .55rem .75rem; color: var(--muted); line-height: 1.4; }
     .wa-bot strong { color: var(--azul); font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: .2rem; }
-
-    .wa-empty {
-      text-align: center;
-      color: var(--muted);
-      font-size: .85rem;
-      padding: 2rem 1rem;
-    }
-
-    .wa-refresh {
-      width: 100%;
-      padding: .5rem;
-      border: 1px solid var(--gris-borde);
-      border-radius: 8px;
-      background: var(--fondo);
-      font: inherit;
-      font-size: .8rem;
-      cursor: pointer;
-      margin-bottom: .75rem;
-      font-weight: 600;
-      color: var(--muted);
-    }
+    .wa-empty { text-align: center; color: var(--muted); font-size: .85rem; padding: 2rem 1rem; }
+    .wa-refresh { width: 100%; padding: .5rem; border: 1px solid var(--gris-borde); border-radius: 8px; background: var(--fondo); font: inherit; font-size: .8rem; cursor: pointer; margin-bottom: .75rem; font-weight: 600; color: var(--muted); }
     .wa-refresh:hover { background: var(--verde-claro); color: var(--verde); }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ccc;
-      display: inline-block;
-      margin-right: .4rem;
-    }
-    .status-dot.on { background: #48bb78; }
-
-    .thinking {
-      align-self: flex-start;
-      font-size: .8rem;
-      color: var(--muted);
-      padding: .5rem .75rem;
-      background: var(--blanco);
-      border: 1px solid var(--gris-borde);
-      border-radius: 12px;
-      border-bottom-left-radius: 4px;
-      animation: pulse 1.2s ease-in-out infinite;
-    }
-
+    .thinking { align-self: flex-start; font-size: .8rem; color: var(--muted); padding: .5rem .75rem; background: var(--blanco); border: 1px solid var(--gris-borde); border-radius: 12px; border-bottom-left-radius: 4px; animation: pulse 1.2s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-    @media (max-width: 1100px) {
-      .shell { grid-template-columns: 240px 1fr; }
-      .wa-panel { display: none; }
-    }
-    @media (max-width: 720px) {
-      .shell { grid-template-columns: 1fr; }
-      .config-panel { display: none; }
-    }
+    @media (max-width: 1100px) { .shell { grid-template-columns: 240px 1fr; } .wa-panel { display: none; } }
+    @media (max-width: 720px) { .shell { grid-template-columns: 1fr; } .config-panel { display: none; } }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <div class="logo-icon">🥫</div>
-    Alacena Inteligente
-  </div>
+  <div class="logo"><div class="logo-icon">🥫</div> Alacena Inteligente</div>
   <span style="font-size:.8rem;color:#9ca3af;margin-left:.5rem;">Panel de administración</span>
-  <div class="header-badge">
-    <span class="status-dot on" id="statusDot"></span>
-    <span id="statusText">Conectado</span>
-  </div>
 </header>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="svc"><span class="dot on" id="dotBackend"></span> Backend</div>
+  <div class="svc"><span class="dot off" id="dotOllama"></span> Ollama</div>
+  <div class="svc"><span class="dot off" id="dotWhatsapp"></span> WhatsApp Bot</div>
+  <button class="btn-start start" id="btnWhatsapp" onclick="toggleWhatsapp()">▶ Iniciar WhatsApp Bot</button>
+</div>
 
 <div class="shell">
 
-  <!-- ── COL 1: CONFIGURACIÓN ── -->
+  <!-- COL 1: CONFIGURACIÓN -->
   <div class="panel config-panel">
     <div class="panel-header">⚙️ Configuración del modelo</div>
     <div class="panel-body">
-
       <div class="config-section">
         <h3>Modelo</h3>
-        <label>
-          LLM activo
+        <label>LLM activo
           <select id="model">
             <option value="llama3.2:3b">llama3.2:3b</option>
             <option value="gemma3:4b">gemma3:4b</option>
@@ -415,41 +139,20 @@
 
       <div class="config-section">
         <h3>Parámetros de generación</h3>
-
         <label>
-          <div class="label-row">
-            <span>Temperature</span>
-            <span class="label-val" id="tempVal">0.7</span>
-          </div>
-          <input type="range" id="temperature" min="0" max="1.2" step="0.05" value="0.7"
-            oninput="document.getElementById('tempVal').textContent=parseFloat(this.value).toFixed(2)">
+          <div class="label-row"><span>Temperature</span><span class="label-val" id="tempVal">0.7</span></div>
+          <input type="range" id="temperature" min="0" max="1.2" step="0.05" value="0.7" oninput="document.getElementById('tempVal').textContent=parseFloat(this.value).toFixed(2)">
         </label>
-
         <label>
-          <div class="label-row">
-            <span>Top-p</span>
-            <span class="label-val" id="topPVal">0.90</span>
-          </div>
-          <input type="range" id="top_p" min="0.1" max="1" step="0.05" value="0.9"
-            oninput="document.getElementById('topPVal').textContent=parseFloat(this.value).toFixed(2)">
+          <div class="label-row"><span>Top-p</span><span class="label-val" id="topPVal">0.90</span></div>
+          <input type="range" id="top_p" min="0.1" max="1" step="0.05" value="0.9" oninput="document.getElementById('topPVal').textContent=parseFloat(this.value).toFixed(2)">
         </label>
-
         <label>
-          <div class="label-row">
-            <span>Repeat penalty</span>
-            <span class="label-val" id="rpVal">1.10</span>
-          </div>
-          <input type="range" id="repeat_penalty" min="1" max="2" step="0.05" value="1.1"
-            oninput="document.getElementById('rpVal').textContent=parseFloat(this.value).toFixed(2)">
+          <div class="label-row"><span>Repeat penalty</span><span class="label-val" id="rpVal">1.10</span></div>
+          <input type="range" id="repeat_penalty" min="1" max="2" step="0.05" value="1.1" oninput="document.getElementById('rpVal').textContent=parseFloat(this.value).toFixed(2)">
         </label>
-
-        <label>
-          Tokens máximos
-          <input type="number" id="num_predict" min="20" max="1000" step="10" value="160">
-        </label>
-
-        <label>
-          Contexto (tokens)
+        <label>Tokens máximos<input type="number" id="num_predict" min="20" max="1000" step="10" value="160"></label>
+        <label>Contexto (tokens)
           <select id="num_ctx">
             <option value="2048">2 048</option>
             <option value="4096" selected>4 096</option>
@@ -460,25 +163,21 @@
 
       <div class="config-section">
         <h3>System prompt</h3>
-        <label>
-          <textarea id="system_prompt">Eres el asistente de una alacena inteligente. Ayudas con recetas, inventario y lista de compras. Responde en español, de forma amigable y concisa.</textarea>
-        </label>
+        <label><textarea id="system_prompt">Eres el asistente de una alacena inteligente. Ayudas con recetas, inventario y lista de compras. Responde en español, de forma amigable y concisa.</textarea></label>
       </div>
 
       <button class="btn btn-dark" onclick="clearChat()">🗑 Limpiar chat</button>
     </div>
   </div>
 
-  <!-- ── COL 2: CHAT ── -->
+  <!-- COL 2: CHAT -->
   <div class="panel">
     <div class="panel-header">💬 Chat con el LLM</div>
-
     <div class="chat-area" id="chatArea"></div>
 
-    <!-- MÉTRICAS -->
     <div style="padding:.75rem;border-top:1px solid var(--gris-borde);">
       <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.5rem;">Métricas de la última respuesta</div>
-      <div class="metrics-grid" id="metricsGrid">
+      <div class="metrics-grid">
         <div class="metric-card"><div class="metric-label">Tiempo total</div><div class="metric-val" id="m-total">—</div></div>
         <div class="metric-card"><div class="metric-label">Tokens/s</div><div class="metric-val" id="m-tps">—</div></div>
         <div class="metric-card"><div class="metric-label">Tokens entrada</div><div class="metric-val" id="m-in">—</div></div>
@@ -494,14 +193,12 @@
     </form>
   </div>
 
-  <!-- ── COL 3: WHATSAPP ── -->
+  <!-- COL 3: WHATSAPP -->
   <div class="panel wa-panel">
     <div class="panel-header">📱 Mensajes de WhatsApp</div>
     <div class="panel-body">
       <button class="wa-refresh" onclick="loadWhatsappHistory()">↻ Actualizar historial</button>
-      <div class="wa-list" id="waList">
-        <div class="wa-empty">Cargando mensajes...</div>
-      </div>
+      <div class="wa-list" id="waList"><div class="wa-empty">Cargando mensajes...</div></div>
     </div>
   </div>
 
@@ -509,6 +206,46 @@
 
 <script>
 const BACKEND = 'http://127.0.0.1:8000';
+let waRunning = false;
+
+// ── STATUS ────────────────────────────────────────────
+async function checkStatus() {
+  try {
+    const res = await fetch(`${BACKEND}/services/status`);
+    const data = await res.json();
+    document.getElementById('dotBackend').className  = 'dot ' + (data.backend  ? 'on' : 'off');
+    document.getElementById('dotOllama').className   = 'dot ' + (data.ollama   ? 'on' : 'off');
+    document.getElementById('dotWhatsapp').className = 'dot ' + (data.whatsapp ? 'on' : 'off');
+    waRunning = data.whatsapp;
+    const btn = document.getElementById('btnWhatsapp');
+    if (waRunning) {
+      btn.textContent = '⏹ Detener WhatsApp Bot';
+      btn.className = 'btn-start stop';
+    } else {
+      btn.textContent = '▶ Iniciar WhatsApp Bot';
+      btn.className = 'btn-start start';
+    }
+  } catch {
+    document.getElementById('dotBackend').className = 'dot off';
+  }
+}
+
+async function toggleWhatsapp() {
+  const btn = document.getElementById('btnWhatsapp');
+  btn.disabled = true;
+  try {
+    if (waRunning) {
+      await fetch(`${BACKEND}/services/whatsapp/stop`, { method: 'POST' });
+    } else {
+      await fetch(`${BACKEND}/services/whatsapp/start`, { method: 'POST' });
+    }
+    setTimeout(checkStatus, 1500);
+  } catch (e) {
+    alert('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
 
 // ── CHAT ──────────────────────────────────────────────
 const chatArea = document.getElementById('chatArea');
@@ -526,22 +263,14 @@ function addBubble(role, text, type) {
   wrap.appendChild(document.createTextNode(text));
   chatArea.appendChild(wrap);
   chatArea.scrollTop = chatArea.scrollHeight;
-  return wrap;
 }
 
 function addThinking() {
   const el = document.createElement('div');
-  el.className = 'thinking';
-  el.textContent = 'Generando respuesta...';
-  el.id = 'thinking';
-  chatArea.appendChild(el);
-  chatArea.scrollTop = chatArea.scrollHeight;
+  el.className = 'thinking'; el.textContent = 'Generando respuesta...'; el.id = 'thinking';
+  chatArea.appendChild(el); chatArea.scrollTop = chatArea.scrollHeight;
 }
-
-function removeThinking() {
-  const el = document.getElementById('thinking');
-  if (el) el.remove();
-}
+function removeThinking() { const el = document.getElementById('thinking'); if (el) el.remove(); }
 
 function updateMetrics(m) {
   document.getElementById('m-total').textContent  = m.wall_time_s.toFixed(2) + ' s';
@@ -554,13 +283,13 @@ function updateMetrics(m) {
 
 function getConfig() {
   return {
-    model:          document.getElementById('model').value,
-    temperature:    parseFloat(document.getElementById('temperature').value),
-    top_p:          parseFloat(document.getElementById('top_p').value),
-    num_predict:    parseInt(document.getElementById('num_predict').value),
-    num_ctx:        parseInt(document.getElementById('num_ctx').value),
+    model: document.getElementById('model').value,
+    temperature: parseFloat(document.getElementById('temperature').value),
+    top_p: parseFloat(document.getElementById('top_p').value),
+    num_predict: parseInt(document.getElementById('num_predict').value),
+    num_ctx: parseInt(document.getElementById('num_ctx').value),
     repeat_penalty: parseFloat(document.getElementById('repeat_penalty').value),
-    system_prompt:  document.getElementById('system_prompt').value,
+    system_prompt: document.getElementById('system_prompt').value,
   };
 }
 
@@ -568,111 +297,71 @@ chatForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const msg = msgInput.value.trim();
   if (!msg) return;
-
   addBubble('Tú', msg, 'user');
   msgInput.value = '';
-  sendBtn.disabled = true;
-  sendBtn.textContent = '...';
+  sendBtn.disabled = true; sendBtn.textContent = '...';
   addThinking();
-
   try {
     const res = await fetch(`${BACKEND}/chat/admin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg, ...getConfig() })
     });
-
     const data = await res.json();
     removeThinking();
-
     if (!res.ok) throw new Error(data.detail || 'Error del backend');
-
     addBubble(`Modelo (${data.model})`, data.reply, 'assistant');
     updateMetrics(data.metrics);
-
   } catch (err) {
     removeThinking();
     addBubble('Error', err.message, 'error');
   } finally {
-    sendBtn.disabled = false;
-    sendBtn.textContent = 'Enviar';
+    sendBtn.disabled = false; sendBtn.textContent = 'Enviar';
   }
 });
 
 msgInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    chatForm.dispatchEvent(new Event('submit'));
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); chatForm.dispatchEvent(new Event('submit')); }
 });
 
-function clearChat() {
-  chatArea.innerHTML = '';
-}
+function clearChat() { chatArea.innerHTML = ''; }
 
 // ── WHATSAPP HISTORIAL ────────────────────────────────
 async function loadWhatsappHistory() {
   const list = document.getElementById('waList');
   list.innerHTML = '<div class="wa-empty">Cargando...</div>';
-
   try {
     const res  = await fetch(`${BACKEND}/chat/historial`);
     const data = await res.json();
-
     if (!data.mensajes || data.mensajes.length === 0) {
       list.innerHTML = '<div class="wa-empty">No hay mensajes de WhatsApp aún.</div>';
       return;
     }
-
     list.innerHTML = '';
-    // Mostrar los últimos 20 mensajes, más recientes primero
     const msgs = [...data.mensajes].reverse().slice(0, 20);
     msgs.forEach(m => {
       const item = document.createElement('div');
       item.className = 'wa-item';
       item.innerHTML = `
-        <div class="wa-user">
-          <strong>👤 Usuario</strong>
-          <div style="margin-top:.2rem">${escHtml(m.mensaje)}</div>
-        </div>
-        <div class="wa-bot">
-          <strong>🤖 Bot</strong>
-          ${m.respuesta ? escHtml(m.respuesta) : '<em style="opacity:.5">Sin respuesta registrada</em>'}
-        </div>
+        <div class="wa-user"><strong>👤 Usuario</strong><div style="margin-top:.2rem">${escHtml(m.mensaje)}</div></div>
+        <div class="wa-bot"><strong>🤖 Bot</strong>${m.respuesta ? escHtml(m.respuesta) : '<em style="opacity:.5">Sin respuesta registrada</em>'}</div>
       `;
       list.appendChild(item);
     });
-
   } catch (err) {
     list.innerHTML = `<div class="wa-empty" style="color:var(--rojo)">Error: ${err.message}</div>`;
   }
 }
 
 function escHtml(t) {
-  return String(t)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
 
 // ── INIT ──────────────────────────────────────────────
-loadWhatsappHistory();
-setInterval(loadWhatsappHistory, 15000); // refresca cada 15s
-
-// Verificar conexión con backend
-async function checkStatus() {
-  const dot  = document.getElementById('statusDot');
-  const text = document.getElementById('statusText');
-  try {
-    await fetch(`${BACKEND}/`);
-    dot.classList.add('on');
-    text.textContent = 'Backend conectado';
-  } catch {
-    dot.classList.remove('on');
-    text.textContent = 'Backend desconectado';
-  }
-}
 checkStatus();
-setInterval(checkStatus, 10000);
+setInterval(checkStatus, 8000);
+loadWhatsappHistory();
+setInterval(loadWhatsappHistory, 15000);
 </script>
 </body>
 </html>
