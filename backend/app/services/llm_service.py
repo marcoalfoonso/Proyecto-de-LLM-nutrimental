@@ -33,9 +33,9 @@ async def extraer_productos_con_llm(mensaje: str) -> list[dict]:
         f"El usuario dice: '{mensaje}'. "
         f"Extrae todos los productos o alimentos que menciona con su cantidad. "
         f"Responde SOLO en este formato, uno por línea: nombre,cantidad. "
-        f"Ejemplo: pollo,1 / zanahorias,3 / leche,2. "
+        f"Ejemplo: pollo,1\nzanahorias,3\nleche,2. "
         f"Si no se menciona cantidad, usa 1. "
-        f"Solo nombres simples en minúsculas, sin artículos (no 'un pollo', solo 'pollo'). "
+        f"Solo nombres simples en minúsculas, sin artículos. "
         f"No agregues explicaciones ni texto extra."
     )
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -43,11 +43,15 @@ async def extraer_productos_con_llm(mensaje: str) -> list[dict]:
             "model": MODEL,
             "prompt": prompt,
             "stream": False,
-            "options": {"temperature": 0.1, "num_predict": 60}
-            print(f"🔍 Extracción LLM: '{texto}'")
+            "options": {
+                "temperature": 0.1,
+                "num_predict": 60
+            }
         })
         response.raise_for_status()
         texto = response.json().get("response", "").strip()
+
+    print(f"🔍 Extracción LLM: '{texto}'")
 
     productos = []
     for linea in texto.split("\n"):
@@ -84,8 +88,9 @@ async def consultar_llm(mensaje: str) -> str:
     # ── AGREGAR PRODUCTO ────────────────────────────────────────
     palabras_agregar = [
         "agregué", "agregue", "agregando", "agregar",
+        "agrega", "agregar al inventario",
         "compré", "compre", "comprando", "comprar",
-        "conseguí", "consegui", "añadí", "añadi",
+        "conseguí", "consegui", "añadí", "añadi", "añade", "añadir",
         "traje", "llegó", "llego", "acabo de comprar",
         "acabo de traer", "ya tengo", "me traje"
     ]
