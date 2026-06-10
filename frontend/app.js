@@ -14,6 +14,14 @@ const profileSel   = document.getElementById("copilot_profile");
 
 let profiles = {};
 
+// ── Utilidad HTML ──────────────────────────────────────
+function escHtml(t) {
+  return String(t)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 // ── Cargar perfiles desde el backend ──────────────────
 async function loadProfiles() {
   try {
@@ -37,14 +45,14 @@ function applySelectedProfile() {
 // ── Config actual ──────────────────────────────────────
 function getConfig() {
   return {
-    model:          document.getElementById("model").value,
+    model:           document.getElementById("model").value,
     copilot_profile: profileSel.value,
-    system_prompt:  promptInput.value,
-    temperature:    parseFloat(document.getElementById("temperature").value),
-    top_p:          parseFloat(document.getElementById("top_p").value),
-    num_predict:    parseInt(document.getElementById("num_predict").value),
-    num_ctx:        parseInt(document.getElementById("num_ctx").value),
-    repeat_penalty: parseFloat(document.getElementById("repeat_penalty").value),
+    system_prompt:   promptInput.value,
+    temperature:     parseFloat(document.getElementById("temperature").value),
+    top_p:           parseFloat(document.getElementById("top_p").value),
+    num_predict:     parseInt(document.getElementById("num_predict").value),
+    num_ctx:         parseInt(document.getElementById("num_ctx").value),
+    repeat_penalty:  parseFloat(document.getElementById("repeat_penalty").value),
   };
 }
 
