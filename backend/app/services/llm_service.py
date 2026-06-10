@@ -44,6 +44,7 @@ async def extraer_productos_con_llm(mensaje: str) -> list[dict]:
             "prompt": prompt,
             "stream": False,
             "options": {"temperature": 0.1, "num_predict": 60}
+            print(f"🔍 Extracción LLM: '{texto}'")
         })
         response.raise_for_status()
         texto = response.json().get("response", "").strip()
