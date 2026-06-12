@@ -1,12 +1,8 @@
 import json
 
-from database.database import (
-    get_connection
-)
+from app.database.database import get_connection
 
-from models.user_profile import (
-    UserProfile
-)
+from models.user_profile import UserProfile
 
 
 class UserRepository:

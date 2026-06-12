@@ -1,4 +1,4 @@
-from database.database import (
+from app.database.database import get_connection(
     get_connection
 )
 
