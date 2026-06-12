@@ -1,169 +1,62 @@
 import httpx
-from services.recipe_service import generar_receta, generar_lista_compras
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "llama3.2:3b"
-INVENTORY_URL = "http://127.0.0.1:8000/inventory/db"
-INVENTORY_ADD_URL = "http://127.0.0.1:8000/inventory/add"
+from models.llm_response import LLMResponse
 
-async def obtener_inventario() -> list[str]:
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        response = await client.get(INVENTORY_URL)
-        response.raise_for_status()
-        data = response.json()
-        return [f"{item['name']} (x{item['quantity']})" for item in data.get("inventory", [])]
 
-async def agregar_producto(nombre: str, cantidad: int = 1) -> bool:
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.post(INVENTORY_ADD_URL, json={
-                "nombre": nombre.strip(),
-                "cantidad": cantidad,
-                "fuente": "whatsapp"
-            })
-            response.raise_for_status()
-            print(f"✅ Producto agregado: {nombre} (x{cantidad})")
-            return True
-    except Exception as e:
-        print(f"❌ Error agregando {nombre}: {e}")
-        return False
+class LLMService:
 
-async def extraer_productos_con_llm(mensaje: str) -> list[dict]:
-    prompt = (
-        f"El usuario dice: '{mensaje}'. "
-        f"Extrae todos los productos o alimentos que menciona con su cantidad. "
-        f"Responde SOLO en este formato, uno por línea: nombre,cantidad. "
-        f"Ejemplo: pollo,1\nzanahorias,3\nleche,2. "
-        f"Si no se menciona cantidad, usa 1. "
-        f"Solo nombres simples en minúsculas, sin artículos. "
-        f"No agregues explicaciones ni texto extra."
-    )
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.post(OLLAMA_URL, json={
-            "model": MODEL,
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.1,
-                "num_predict": 60
-            }
-        })
-        response.raise_for_status()
-        texto = response.json().get("response", "").strip()
+    def __init__(
+        self,
+        model: str = "llama3.2:3b",
+        base_url: str = "http://localhost:11434/api/generate"
+    ):
+        self.model = model
+        self.base_url = base_url
 
-    print(f"🔍 Extracción LLM: '{texto}'")
+    async def generate(
+        self,
+        prompt: str,
+        temperature: float = 0.4,
+        max_tokens: int = 500
+    ) -> LLMResponse:
 
-    productos = []
-    for linea in texto.split("\n"):
-        linea = linea.strip().replace("- ", "").replace("* ", "")
-        if "," in linea:
-            partes = linea.split(",")
-            nombre = partes[0].strip().lower()
-            try:
-                cantidad = int(partes[1].strip())
-            except:
-                cantidad = 1
-            if nombre:
-                productos.append({"nombre": nombre, "cantidad": cantidad})
-    return productos
+        try:
 
-async def consultar_llm(mensaje: str) -> str:
-    texto = mensaje.lower().strip()
+            async with httpx.AsyncClient(
+                timeout=120.0
+            ) as client:
 
-    # ── VER INVENTARIO ──────────────────────────────────────────
-    palabras_inventario = [
-        "inventario", "qué tengo", "que tengo", "qué hay", "que hay",
-        "qué tienes", "que tienes", "qué productos", "que productos",
-        "ver productos", "ver inventario", "mis productos", "mi inventario",
-        "qué tengo de comida", "que tengo de comida", "qué hay en",
-        "que hay en", "qué alimentos", "que alimentos", "mostrar inventario",
-        "lista de productos", "qué tengo disponible", "que tengo disponible"
-    ]
-    if any(p in texto for p in palabras_inventario):
-        ingredientes = await obtener_inventario()
-        if not ingredientes:
-            return "❌ El inventario está vacío."
-        return "🥫 *Inventario actual de tu alacena:*\n\n" + "\n".join([f"• {p}" for p in ingredientes])
+                response = await client.post(
+                    self.base_url,
+                    json={
+                        "model": self.model,
+                        "prompt": prompt,
+                        "stream": False,
+                        "options": {
+                            "temperature": temperature,
+                            "num_predict": max_tokens
+                        }
+                    }
+                )
 
-    # ── AGREGAR PRODUCTO ────────────────────────────────────────
-    palabras_agregar = [
-        "agregué", "agregue", "agregando", "agregar",
-        "agrega", "agregar al inventario",
-        "compré", "compre", "comprando", "comprar",
-        "conseguí", "consegui", "añadí", "añadi", "añade", "añadir",
-        "traje", "llegó", "llego", "acabo de comprar",
-        "acabo de traer", "ya tengo", "me traje"
-    ]
-    if any(p in texto for p in palabras_agregar):
-        productos = await extraer_productos_con_llm(mensaje)
-        if not productos:
-            return "❌ No pude identificar los productos. Intenta con: 'agregué [producto]'"
-        confirmados = []
-        for p in productos:
-            exito = await agregar_producto(p["nombre"], p["cantidad"])
-            if exito:
-                confirmados.append(f"• {p['nombre']} (x{p['cantidad']})")
-        if confirmados:
-            return "✅ *Productos agregados a tu alacena:*\n\n" + "\n".join(confirmados)
-        return "❌ No se pudo agregar ningún producto."
+                response.raise_for_status()
 
-    # ── RECETA ──────────────────────────────────────────────────
-    if any(p in texto for p in [
-        "receta", "cocinar", "qué hago", "que hago",
-        "qué puedo", "que puedo", "prepara", "hazme", "sugiere",
-        "ramen", "pasta", "sopa", "ensalada", "desayuno",
-        "cena", "almuerzo", "comer", "qué como", "que como",
-        "hacer de comer", "hacer de cenar", "hacer de desayunar",
-        "qué hago de", "que hago de", "qué preparo", "que preparo",
-        "qué puedo hacer", "que puedo hacer", "qué cocino", "que cocino"
-    ]):
-        return await generar_receta(mensaje)
+                content = (
+                    response.json()
+                    .get("response", "")
+                    .strip()
+                )
 
-    # ── LISTA DE COMPRAS ────────────────────────────────────────
-    if any(p in texto for p in [
-        "compras", "lista de compras", "falta", "necesito comprar",
-        "qué falta", "que falta", "qué me falta", "que me falta",
-        "qué necesito", "que necesito"
-    ]):
-        return await generar_lista_compras(mensaje)
+                return LLMResponse(
+                    success=True,
+                    content=content,
+                    model=self.model
+                )
 
-    # ── AYUDA / HOLA ────────────────────────────────────────────
-    if any(p in texto for p in ["hola", "ayuda", "help", "inicio", "menu", "menú", "comandos"]):
-        return (
-            "👋 *Hola! Soy el asistente de tu alacena inteligente* 🥫\n\n"
-            "*Comandos disponibles:*\n\n"
-            "📋 *inventario* — ver productos con cantidades\n"
-            "🍽️ *receta* — sugerir receta con lo que tienes\n"
-            "🛒 *compras* — lista de lo que te falta comprar\n"
-            "➕ *agregué [producto]* — agregar producto al inventario\n\n"
-            "_Ejemplos:_\n"
-            "_'Qué tengo de comida'_\n"
-            "_'Qué puedo hacer de comer?'_\n"
-            "_'Dame una receta de pasta'_\n"
-            "_'Agregué una piña y 3 zanahorias'_\n"
-            "_'Qué me falta comprar'_"
-        )
+        except Exception as e:
 
-    # ── CUALQUIER OTRO MENSAJE → LLM con inventario ─────────────
-    ingredientes = await obtener_inventario()
-    prompt = (
-        f"Eres el asistente de una alacena inteligente. "
-        f"Inventario actual: {', '.join(ingredientes)}. "
-        f"El usuario dice: '{mensaje}'. "
-        f"Responde útil, amigable, máximo 100 palabras en español."
-    )
-    print(f"🤖 Consultando LLM con modelo {MODEL}...")
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        response = await client.post(OLLAMA_URL, json={
-            "model": MODEL,
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": 0.7,
-                "top_p": 0.9,
-                "num_predict": 200,
-                "repeat_penalty": 1.1
-            }
-        })
-        response.raise_for_status()
-        return response.json().get("response", "").strip()
+            return LLMResponse(
+                success=False,
+                content=str(e),
+                model=self.model
+            )
