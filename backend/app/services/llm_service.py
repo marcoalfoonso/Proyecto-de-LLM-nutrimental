@@ -1,6 +1,8 @@
 import httpx
 
-from models.llm_response import LLMResponse
+from app.models.llm_response import (
+    LLMResponse
+)
 
 
 class LLMService:
@@ -37,22 +39,23 @@ class LLMService:
                         "stream": False,
                         "options": {
                             "temperature": temperature,
-                            "num_predict": max_tokens
+                            "num_predict": max_tokens,
+                            "top_p": 0.9,
+                            "repeat_penalty": 1.1
                         }
                     }
                 )
 
                 response.raise_for_status()
 
-                content = (
-                    response.json()
-                    .get("response", "")
-                    .strip()
-                )
+                data = response.json()
 
                 return LLMResponse(
                     success=True,
-                    content=content,
+                    content=data.get(
+                        "response",
+                        ""
+                    ).strip(),
                     model=self.model
                 )
 

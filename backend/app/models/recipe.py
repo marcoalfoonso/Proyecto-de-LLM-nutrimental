@@ -1,9 +1,8 @@
 from dataclasses import dataclass, field
 
-from models.recipe_ingredient import (
+from app.models.recipe_ingredient import (
     RecipeIngredient
 )
-
 
 @dataclass
 class Recipe:

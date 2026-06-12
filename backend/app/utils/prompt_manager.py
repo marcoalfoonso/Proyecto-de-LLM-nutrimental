@@ -3,22 +3,21 @@ from pathlib import Path
 
 class PromptManager:
 
-    PROMPTS_DIR = Path("app/prompts")
-
-    _cache = {}
+    BASE_PATH = (
+        Path(__file__)
+        .resolve()
+        .parent
+        .parent
+        / "prompts"
+    )
 
     @classmethod
-    def load(cls, filename: str) -> str:
+    def load(
+        cls,
+        filename: str
+    ) -> str:
 
-        if filename in cls._cache:
-            return cls._cache[filename]
-
-        path = cls.PROMPTS_DIR / filename
-
-        if not path.exists():
-            raise FileNotFoundError(
-                f"Prompt not found: {filename}"
-            )
+        path = cls.BASE_PATH / filename
 
         with open(
             path,
@@ -26,8 +25,4 @@ class PromptManager:
             encoding="utf-8"
         ) as file:
 
-            content = file.read()
-
-        cls._cache[filename] = content
-
-        return content
+            return file.read()

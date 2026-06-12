@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from models.recipe import Recipe
+from app.models.recipe import Recipe
 
 
 @dataclass
