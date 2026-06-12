@@ -5,7 +5,9 @@ from typing import Optional
 @dataclass
 class UserProfile:
 
-    id: int
+    id: Optional[int]
+
+    whatsapp_number: str
 
     name: str
 

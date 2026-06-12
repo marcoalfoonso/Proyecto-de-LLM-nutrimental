@@ -1,24 +1,18 @@
 import json
 
-from app.database.database import (
+from app.database.connection import (
     get_connection
 )
 
-from app.models.user_profile import (
-    UserProfile
-)
+from app.models.user_profile import UserProfile
 
+from typing import Optional
 
 class UserRepository:
 
-    def create(
-        self,
-        user: UserProfile,
-        whatsapp_number: str
-    ):
+    def create(self, user: UserProfile):
 
         conn = get_connection()
-
         cursor = conn.cursor()
 
         cursor.execute(
@@ -26,25 +20,15 @@ class UserRepository:
             INSERT INTO users (
 
                 whatsapp_number,
-
-                name,
-
-                age,
-
-                sex,
-
-                weight,
-
-                height,
-
+                nombre,
+                edad,
+                sexo,
+                peso,
+                altura,
                 activity_level,
-
-                goal,
-
+                objetivo,
                 dietary_restrictions,
-
                 food_preferences,
-
                 budget
 
             )
@@ -52,45 +36,29 @@ class UserRepository:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                whatsapp_number,
-
+                user.whatsapp_number,
                 user.name,
-
                 user.age,
-
                 user.sex,
-
                 user.weight,
-
                 user.height,
-
                 user.activity_level,
-
                 user.goal,
-
-                json.dumps(
-                    user.dietary_restrictions
-                ),
-
-                json.dumps(
-                    user.food_preferences
-                ),
-
+                json.dumps(user.dietary_restrictions),
+                json.dumps(user.food_preferences),
                 user.budget
             )
         )
 
         conn.commit()
-
         conn.close()
 
     def get_by_whatsapp(
         self,
         whatsapp_number: str
-    ):
+    ) -> Optional[UserProfile]:
 
         conn = get_connection()
-
         cursor = conn.cursor()
 
         cursor.execute(
@@ -111,51 +79,38 @@ class UserRepository:
 
         return UserProfile(
 
-            id=row["id"],
+            id=row["usuario_id"],
 
-            name=row["name"],
+            whatsapp_number=row["whatsapp_number"],
 
-            age=row["age"],
+            name=row["nombre"],
 
-            sex=row["sex"],
+            age=row["edad"],
 
-            weight=row["weight"],
+            sex=row["sexo"],
 
-            height=row["height"],
+            weight=row["peso"],
 
-            activity_level=row[
-                "activity_level"
-            ],
+            height=row["altura"],
 
-            goal=row["goal"],
+            activity_level=row["activity_level"],
 
-            dietary_restrictions=
-                json.loads(
-                    row[
-                        "dietary_restrictions"
-                    ]
-                    or "[]"
-                ),
+            goal=row["objetivo"],
 
-            food_preferences=
-                json.loads(
-                    row[
-                        "food_preferences"
-                    ]
-                    or "[]"
-                ),
+            dietary_restrictions=json.loads(
+                row["dietary_restrictions"] or "[]"
+            ),
+
+            food_preferences=json.loads(
+                row["food_preferences"] or "[]"
+            ),
 
             budget=row["budget"]
         )
 
-    def update(
-        self,
-        user: UserProfile,
-        whatsapp_number: str
-    ):
+    def update(self, user: UserProfile):
 
         conn = get_connection()
-
         cursor = conn.cursor()
 
         cursor.execute(
@@ -163,58 +118,70 @@ class UserRepository:
             UPDATE users
             SET
 
-                name=?,
+                nombre = ?,
+                edad = ?,
+                sexo = ?,
+                peso = ?,
+                altura = ?,
+                activity_level = ?,
+                objetivo = ?,
+                dietary_restrictions = ?,
+                food_preferences = ?,
+                budget = ?
 
-                age=?,
-
-                sex=?,
-
-                weight=?,
-
-                height=?,
-
-                activity_level=?,
-
-                goal=?,
-
-                dietary_restrictions=?,
-
-                food_preferences=?,
-
-                budget=?
-
-            WHERE whatsapp_number=?
+            WHERE whatsapp_number = ?
             """,
             (
-
                 user.name,
-
                 user.age,
-
                 user.sex,
-
                 user.weight,
-
                 user.height,
-
                 user.activity_level,
-
                 user.goal,
-
-                json.dumps(
-                    user.dietary_restrictions
-                ),
-
-                json.dumps(
-                    user.food_preferences
-                ),
-
+                json.dumps(user.dietary_restrictions),
+                json.dumps(user.food_preferences),
                 user.budget,
-
-                whatsapp_number
+                user.whatsapp_number
             )
         )
 
         conn.commit()
+        conn.close()
+
+    def delete(self, whatsapp_number: str):
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            DELETE FROM users
+            WHERE whatsapp_number = ?
+            """,
+            (whatsapp_number,)
+        )
+
+        conn.commit()
+        conn.close()
+
+    def exists(self, whatsapp_number: str) -> bool:
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT 1
+            FROM users
+            WHERE whatsapp_number = ?
+            LIMIT 1
+            """,
+            (whatsapp_number,)
+        )
+
+        result = cursor.fetchone()
 
         conn.close()
+
+        return result is not None

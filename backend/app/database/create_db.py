@@ -1,4 +1,4 @@
-from connection import get_connection
+from app.database.connection import get_connection
 
 conn = get_connection()
 cursor = conn.cursor()
@@ -15,16 +15,35 @@ cursor.execute("""
 """)
 
 cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users(
-               usuario_id INTEGER PRIMARY KEY AUTOINCREMENT,
-               nombre TEXT NOT NULL,
-               edad INTEGER NOT NULL,
-               peso REAL NOT NULL,
-               altura REAL NOT NULL,
-               objetivo TEXT NOT NULL,
-               ultima_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP
-               )
-               """)
+CREATE TABLE IF NOT EXISTS users(
+
+    usuario_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    whatsapp_number TEXT UNIQUE,
+
+    nombre TEXT,
+
+    edad INTEGER,
+
+    sexo TEXT,
+
+    peso REAL,
+
+    altura REAL,
+
+    activity_level TEXT,
+
+    objetivo TEXT,
+
+    dietary_restrictions TEXT,
+
+    food_preferences TEXT,
+
+    budget REAL,
+
+    ultima_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+""")
 
 conn.commit()
 
