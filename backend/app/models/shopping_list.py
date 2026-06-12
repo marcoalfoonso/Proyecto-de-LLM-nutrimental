@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from models.shopping_item import (
+from app.models.shopping_item import (
     ShoppingItem
 )
 
