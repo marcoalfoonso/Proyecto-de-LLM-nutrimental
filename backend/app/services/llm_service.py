@@ -18,6 +18,9 @@ class LLMService:
             "http://localhost:11434/api/generate"
         )
 
+        print("MODEL:", self.model)
+        print("URL:", self.url)
+
     async def generate(
         self,
         prompt: str,

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from database.connection import get_connection
+from app.database.connection import get_connection
 
 
 #lee el archivo json y lo devuelve como un diccionario

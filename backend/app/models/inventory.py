@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from models.ingredient import Ingredient
+from app.models.ingredient import Ingredient
 
 
 @dataclass

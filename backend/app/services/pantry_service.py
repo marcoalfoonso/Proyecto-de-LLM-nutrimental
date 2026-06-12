@@ -1,6 +1,6 @@
 import httpx
 
-from models.inventory import Inventory
+from app.models.inventory import Inventory
 
 
 class PantryService:
