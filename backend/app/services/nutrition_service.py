@@ -1,55 +1,43 @@
-from models.user_profile import UserProfile
-from models.nutrition_profile import NutritionProfile
+from app.models.user_profile import UserProfile
+from app.models.nutrition_profile import NutritionProfile
 
 
 class NutritionService:
 
     ACTIVITY_FACTORS = {
+
         "sedentary": 1.2,
+
         "light": 1.375,
+
         "moderate": 1.55,
+
         "active": 1.725,
+
         "very_active": 1.9
     }
-
-    def calculate_bmi(
-        self,
-        weight: float,
-        height_cm: float
-    ) -> float:
-
-        height_m = height_cm / 100
-
-        return round(
-            weight / (height_m ** 2),
-            2
-        )
 
     def calculate_tmb(
         self,
         user: UserProfile
     ) -> float:
 
+        height_cm = user.height * 100
+
         if user.sex.lower() == "male":
 
             return (
                 (10 * user.weight)
-                +
-                (6.25 * user.height)
-                -
-                (5 * user.age)
-                +
-                5
+                + (6.25 * height_cm)
+                - (5 * user.age)
+                + 5
             )
 
         return (
             (10 * user.weight)
-            +
-            (6.25 * user.height)
-            -
-            (5 * user.age)
-            -
-            161
+            + (6.25 * height_cm)
+            - (5 * user.age)
+            - 161
         )
 
     def calculate_get(
@@ -65,63 +53,63 @@ class NutritionService:
 
         return tmb * factor
 
-    def calculate_calorie_target(
+    def calculate_target_calories(
         self,
         get: float,
         goal: str
     ) -> float:
 
-        if goal == "weight_loss":
-            return get * 0.85
+        goal = goal.lower()
+
+        if goal == "fat_loss":
+
+            return get * 0.8
 
         if goal == "muscle_gain":
-            return get * 1.10
 
-        if goal == "recomposition":
-            return get * 0.95
+            return get * 1.1
 
         return get
 
-    def calculate_macros(
+    def calculate_protein(
         self,
-        calories: float,
-        weight: float,
-        goal: str
-    ):
+        user: UserProfile
+    ) -> float:
 
-        if goal == "muscle_gain":
+        if user.goal.lower() in [
+            "fat_loss",
+            "muscle_gain"
+        ]:
 
-            protein = weight * 2.0
+            return user.weight * 2.0
 
-        elif goal == "weight_loss":
+        return user.weight * 1.6
 
-            protein = weight * 2.2
+    def calculate_fat(
+        self,
+        user: UserProfile
+    ) -> float:
 
-        else:
+        return user.weight * 0.8
 
-            protein = weight * 1.8
+    def calculate_carbs(
+        self,
+        calories_target: float,
+        protein_g: float,
+        fat_g: float
+    ) -> float:
 
-        fat = weight * 0.8
+        protein_calories = protein_g * 4
 
-        protein_calories = protein * 4
+        fat_calories = fat_g * 9
 
-        fat_calories = fat * 9
-
-        carb_calories = (
-            calories
-            -
-            protein_calories
-            -
-            fat_calories
+        remaining_calories = (
+            calories_target
+            - protein_calories
+            - fat_calories
         )
 
-        carbs = carb_calories / 4
-
-        return (
-            round(protein),
-            round(fat),
-            round(carbs)
-        )
+        return remaining_calories / 4
 
     def generate_profile(
         self,
@@ -136,27 +124,49 @@ class NutritionService:
         )
 
         calories_target = (
-            self.calculate_calorie_target(
+            self.calculate_target_calories(
                 get,
                 user.goal
             )
         )
 
-        protein, fat, carbs = (
-            self.calculate_macros(
-                calories_target,
-                user.weight,
-                user.goal
-            )
+        protein = self.calculate_protein(
+            user
+        )
+
+        fat = self.calculate_fat(
+            user
+        )
+
+        carbs = self.calculate_carbs(
+            calories_target,
+            protein,
+            fat
         )
 
         return NutritionProfile(
-            tmb=round(tmb),
-            get=round(get),
+
+            tmb=round(tmb, 2),
+
+            get=round(get, 2),
+
             calories_target=round(
-                calories_target
+                calories_target,
+                2
             ),
-            protein_target=protein,
-            fat_target=fat,
-            carb_target=carbs
+
+            protein_target=round(
+                protein,
+                2
+            ),
+
+            fat_target=round(
+                fat,
+                2
+            ),
+
+            carb_target=round(
+                carbs,
+                2
+            )
         )
